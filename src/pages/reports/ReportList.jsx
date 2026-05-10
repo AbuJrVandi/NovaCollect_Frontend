@@ -46,11 +46,14 @@ export default function ReportList() {
     }
   };
 
-  const statusStyles = {
-    completed: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-    processing: 'bg-amber-50 text-amber-700 border-amber-200',
-    queued: 'bg-blue-50 text-blue-700 border-blue-200',
-    failed: 'bg-red-50 text-red-700 border-red-200',
+  const badgeClass = (status) => {
+    switch (status) {
+      case 'completed': return 'badge-green';
+      case 'processing': return 'badge-amber';
+      case 'queued': return 'badge-blue';
+      case 'failed': return 'badge-red';
+      default: return 'badge-gray';
+    }
   };
 
   const formatLabels = {
@@ -66,20 +69,17 @@ export default function ReportList() {
     { header: 'Format', render: (r) => (
       <span className="text-sm font-medium text-[#0f172a]">{formatLabels[r.format] || r.format?.toUpperCase() || '—'}</span>
     )},
-    { header: 'Status', render: (r) => {
-      const style = statusStyles[r.status] || 'bg-[#f1f5f9] text-[#64748b] border-[#e2e8f0]';
-      return (
-        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-full border ${style}`}>
-          <span className={`w-1.5 h-1.5 rounded-full ${r.status === 'completed' ? 'bg-emerald-500' : r.status === 'processing' ? 'bg-amber-500' : 'bg-[#94a3b8]'}`} />
-          {(r.status || 'queued').charAt(0).toUpperCase() + (r.status || 'queued').slice(1)}
-        </span>
-      );
-    }},
+    { header: 'Status', render: (r) => (
+      <span className={`badge ${badgeClass(r.status)}`}>
+        <span className="badge-dot" />
+        {(r.status || 'queued').charAt(0).toUpperCase() + (r.status || 'queued').slice(1)}
+      </span>
+    )},
     { header: 'Created', render: (r) => (
       <span className="text-xs text-[#64748b]">{r.created_at ? new Date(r.created_at).toLocaleString() : '—'}</span>
     )},
     { header: '', render: (r) => r.file_path && r.status === 'completed' ? (
-      <a href={r.file_path} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm font-medium text-primary-600 hover:text-primary-700 transition-colors">
+      <a href={r.file_path} target="_blank" rel="noopener noreferrer" className="file-link">
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
         </svg>
@@ -90,10 +90,10 @@ export default function ReportList() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="page-header-row">
         <div>
-          <h1 className="text-2xl font-bold text-[#0f172a] tracking-tight">Reports & Exports</h1>
-          <p className="text-sm text-[#64748b] mt-1">Generate and download data exports</p>
+          <h1 className="page-title">Reports & Exports</h1>
+          <p className="page-subtitle">Generate and download data exports</p>
         </div>
         <Button onClick={() => setExportModal(true)}>
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -119,27 +119,27 @@ export default function ReportList() {
               { value: 'pdf', label: 'PDF (.pdf)' },
             ]}
           />
-          <div>
-            <label className="block text-sm font-medium text-[#475569] mb-1.5">Form UUID (optional)</label>
+          <div className="input-group">
+            <label className="input-label">Form UUID (optional)</label>
             <input
               type="text"
               value={exportConfig.filters.form_uuid}
               onChange={(e) => setExportConfig({ ...exportConfig, filters: { ...exportConfig.filters, form_uuid: e.target.value } })}
-              className="w-full rounded-lg border border-[#e2e8f0] px-3.5 py-2.5 text-sm text-[#0f172a] bg-white shadow-sm transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"
+              className="input-field"
               placeholder="Filter by form UUID"
             />
           </div>
-          <div>
-            <label className="block text-sm font-medium text-[#475569] mb-1.5">Status filter (optional)</label>
+          <div className="input-group">
+            <label className="input-label">Status filter (optional)</label>
             <input
               type="text"
               value={exportConfig.filters.status}
               onChange={(e) => setExportConfig({ ...exportConfig, filters: { ...exportConfig.filters, status: e.target.value } })}
-              className="w-full rounded-lg border border-[#e2e8f0] px-3.5 py-2.5 text-sm text-[#0f172a] bg-white shadow-sm transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"
+              className="input-field"
               placeholder="e.g. submitted"
             />
           </div>
-          <div className="flex justify-end gap-3 pt-2">
+          <div className="modal-footer" style={{ padding: 0 }}>
             <Button variant="secondary" onClick={() => setExportModal(false)}>Cancel</Button>
             <Button onClick={handleExport} loading={exporting}>Queue Export</Button>
           </div>

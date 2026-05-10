@@ -64,78 +64,72 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold text-[#0f172a] tracking-tight">Dashboard</h1>
-        <p className="text-sm text-[#64748b] mt-1">Overview of your NovaCollect workspace</p>
+      <div className="page-header">
+        <h1 className="page-title">Dashboard</h1>
+        <p className="page-subtitle">Overview of your NovaCollect workspace</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div className="stat-grid">
         {statCards.map((card) => (
-          <Link key={card.label} to={card.link} className="block group">
-            <div className="bg-white rounded-xl border border-[#e2e8f0] shadow-sm hover:shadow-lg hover:border-[#cbd5e1] transition-all duration-200 p-5">
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-sm font-medium text-[#64748b] group-hover:text-[#0f172a] transition-colors">{card.label}</span>
-                <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${card.gradient} flex items-center justify-center shadow-sm group-hover:shadow-md group-hover:scale-110 transition-all duration-200`}>
-                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d={card.icon} />
-                  </svg>
-                </div>
+          <Link key={card.label} to={card.link} className="stat-card">
+            <div className="stat-card-top">
+              <span className="stat-card-label">{card.label}</span>
+              <div className={`stat-card-icon bg-gradient-to-br ${card.gradient}`}>
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d={card.icon} />
+                </svg>
               </div>
-              <p className="text-3xl font-bold text-[#0f172a] tracking-tight">
-                {loading ? (
-                  <span className="inline-block w-12 h-8 bg-[#f1f5f9] rounded animate-pulse" />
-                ) : (
-                  card.value ?? '—'
-                )}
-              </p>
             </div>
+            <p className="stat-card-value">
+              {loading ? (
+                <span className="inline-block w-12 h-8 bg-[#f1f5f9] rounded animate-pulse" />
+              ) : (
+                card.value ?? '—'
+              )}
+            </p>
           </Link>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="dashboard-grid">
         <Card title="Recent Activity" subtitle="Latest actions in your workspace">
           {loading ? (
             <div className="space-y-3">
               {[1, 2, 3].map((i) => (
                 <div key={i} className="flex items-center gap-3">
                   <div className="w-2 h-2 rounded-full bg-[#e2e8f0] animate-pulse" />
-                  <div className="flex-1 h-4 bg-[#f1f5f9] rounded animate-pulse" />
+                  <div className="flex-1 h-4 skeleton skeleton-line" />
                 </div>
               ))}
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center py-10">
-              <div className="w-12 h-12 bg-[#f1f5f9] rounded-full flex items-center justify-center mb-3">
-                <svg className="w-6 h-6 text-[#94a3b8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="empty-state" style={{ padding: '2.5rem 1rem' }}>
+              <div className="empty-state-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <p className="text-sm text-[#94a3b8]">Activity data will appear here</p>
+              <p className="empty-state-desc">Activity data will appear here</p>
             </div>
           )}
         </Card>
 
         <Card title="Quick Actions" subtitle="Common tasks">
-          <div className="grid grid-cols-2 gap-3">
+          <div className="quick-grid">
             {[
               { to: '/forms/new', label: 'New Form', icon: 'M12 4v16m8-8H4', desc: 'Create a new form' },
               { to: '/submissions', label: 'Submissions', icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z', desc: 'View submissions' },
               { to: '/projects', label: 'Projects', icon: 'M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z', desc: 'Manage projects' },
               { to: '/analytics', label: 'Analytics', icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z', desc: 'View analytics' },
             ].map(({ to, label, icon, desc }) => (
-              <Link
-                key={to}
-                to={to}
-                className="flex flex-col gap-1.5 p-4 rounded-xl border border-[#e2e8f0] hover:border-primary-200 hover:bg-primary-50/50 transition-all duration-200 group"
-              >
-                <div className="w-9 h-9 rounded-lg bg-primary-50 flex items-center justify-center group-hover:bg-primary-100 group-hover:scale-110 transition-all duration-200">
-                  <svg className="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <Link key={to} to={to} className="quick-item">
+                <div className="quick-item-icon">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d={icon} />
                   </svg>
                 </div>
-                <span className="text-sm font-semibold text-[#0f172a] group-hover:text-primary-700 transition-colors">{label}</span>
-                <span className="text-xs text-[#94a3b8]">{desc}</span>
+                <span className="quick-item-label">{label}</span>
+                <span className="quick-item-desc">{desc}</span>
               </Link>
             ))}
           </div>

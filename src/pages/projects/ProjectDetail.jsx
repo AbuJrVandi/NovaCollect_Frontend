@@ -8,10 +8,10 @@ import { projectService } from '../../services/projectService';
 import useAppStore from '../../store/useAppStore';
 
 const statusConfig = {
-  todo: { label: 'To Do', gradient: 'from-[#f1f5f9] to-[#e2e8f0]', textColor: 'text-[#64748b]', dotColor: 'bg-[#94a3b8]' },
-  in_progress: { label: 'In Progress', gradient: 'from-blue-50 to-indigo-50', textColor: 'text-blue-700', dotColor: 'bg-blue-500', border: 'border-blue-200' },
-  review: { label: 'Review', gradient: 'from-purple-50 to-violet-50', textColor: 'text-purple-700', dotColor: 'bg-purple-500', border: 'border-purple-200' },
-  done: { label: 'Done', gradient: 'from-emerald-50 to-green-50', textColor: 'text-emerald-700', dotColor: 'bg-emerald-500', border: 'border-emerald-200' },
+  todo: { label: 'To Do', dotColor: 'bg-[#94a3b8]' },
+  in_progress: { label: 'In Progress', dotColor: 'bg-blue-500' },
+  review: { label: 'Review', dotColor: 'bg-purple-500' },
+  done: { label: 'Done', dotColor: 'bg-emerald-500' },
 };
 
 export default function ProjectDetail() {
@@ -66,11 +66,11 @@ export default function ProjectDetail() {
     return (
       <div className="space-y-6 animate-fade-in">
         <div className="space-y-2">
-          <div className="h-7 bg-[#f1f5f9] rounded w-48 animate-pulse" />
-          <div className="h-4 bg-[#f1f5f9] rounded w-64 animate-pulse" />
+          <div className="skel skel-h2" />
+          <div className="skel skel-text w-64" />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
-          {[1, 2, 3, 4].map((i) => <div key={i} className="h-64 bg-white rounded-xl border border-[#e2e8f0] animate-pulse" />)}
+        <div className="kanban-grid">
+          {[1, 2, 3, 4].map((i) => <div key={i} className="skel skel-card h-64" />)}
         </div>
       </div>
     );
@@ -78,13 +78,13 @@ export default function ProjectDetail() {
 
   if (!project) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 animate-fade-in">
-        <div className="w-16 h-16 bg-[#f1f5f9] rounded-2xl flex items-center justify-center mb-4">
-          <svg className="w-8 h-8 text-[#94a3b8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div className="empty-state" style={{ paddingTop: '5rem' }}>
+        <div className="empty-state-icon">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </div>
-        <p className="text-sm font-medium text-[#64748b]">Project not found</p>
+        <p className="empty-state-title">Project not found</p>
         <Button variant="secondary" onClick={() => navigate('/projects')} className="mt-4">Back to Projects</Button>
       </div>
     );
@@ -100,10 +100,10 @@ export default function ProjectDetail() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="page-header-row">
         <div>
-          <h1 className="text-2xl font-bold text-[#0f172a] tracking-tight">{project.name}</h1>
-          <p className="text-sm text-[#64748b] mt-1">{project.description || 'No description'}</p>
+          <h1 className="page-title">{project.name}</h1>
+          <p className="page-subtitle">{project.description || 'No description'}</p>
         </div>
         <div className="flex items-center gap-3">
           <Button onClick={() => setTaskModal(true)}>
@@ -121,35 +121,33 @@ export default function ProjectDetail() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
+      <div className="kanban-grid">
         {Object.entries(statusGroups).map(([status, items]) => {
           const config = statusConfig[status] || statusConfig.todo;
           return (
-            <div key={status} className="bg-white rounded-xl border border-[#e2e8f0] shadow-sm">
-              <div className={`px-5 py-3.5 border-b border-[#e2e8f0] bg-gradient-to-r ${config.gradient} rounded-t-xl`}>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className={`w-2 h-2 rounded-full ${config.dotColor}`} />
-                    <h3 className="text-sm font-semibold text-[#0f172a]">{config.label}</h3>
-                  </div>
-                  <span className="text-xs font-medium text-[#64748b] bg-white/80 px-2 py-0.5 rounded-full">{items.length}</span>
+            <div key={status} className="kanban-col">
+              <div className="kanban-col-header">
+                <div className="kanban-col-header-inner">
+                  <span className={`kanban-col-dot ${config.dotColor}`} />
+                  <h3 className="kanban-col-title">{config.label}</h3>
                 </div>
+                <span className="kanban-col-count">{items.length}</span>
               </div>
-              <div className="p-4 space-y-2.5 min-h-[120px]">
+              <div className="kanban-col-body">
                 {items.length > 0 ? (
                   items.map((task) => (
-                    <div key={task.uuid} className="p-3.5 rounded-xl border border-[#e2e8f0] bg-white hover:border-[#cbd5e1] hover:shadow-sm transition-all duration-150 group">
-                      <div className="flex items-start justify-between gap-2">
+                    <div key={task.uuid} className="kanban-task-card">
+                      <div className="kanban-task-top">
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-[#0f172a]">{task.title}</p>
+                          <p className="kanban-task-title">{task.title}</p>
                           {task.description && (
-                            <p className="text-xs text-[#64748b] mt-1 line-clamp-2">{task.description}</p>
+                            <p className="kanban-task-desc">{task.description}</p>
                           )}
                         </div>
                         <select
                           value={task.status || 'todo'}
                           onChange={(e) => handleStatusChange(task.uuid, e.target.value)}
-                          className="text-xs border border-[#e2e8f0] rounded-lg px-2 py-1 bg-white text-[#475569] hover:border-[#cbd5e1] focus:outline-none focus:ring-2 focus:ring-primary-500/20 transition-all opacity-0 group-hover:opacity-100"
+                          className="kanban-task-select"
                         >
                           <option value="todo">To Do</option>
                           <option value="in_progress">In Progress</option>
@@ -158,25 +156,25 @@ export default function ProjectDetail() {
                         </select>
                       </div>
                       {task.assigned_to && (
-                        <div className="flex items-center gap-1.5 mt-2.5 pt-2 border-t border-[#e2e8f0]">
-                          <div className="w-5 h-5 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center shadow-sm">
-                            <span className="text-[10px] font-bold text-white">
+                        <div className="kanban-task-assignee">
+                          <div className="kanban-task-avatar">
+                            <span>
                               {(task.assigned_to.name || task.assigned_to).charAt(0).toUpperCase()}
                             </span>
                           </div>
-                          <span className="text-xs text-[#64748b]">{task.assigned_to.name || task.assigned_to}</span>
+                          <span className="kanban-task-name">{task.assigned_to.name || task.assigned_to}</span>
                         </div>
                       )}
                     </div>
                   ))
                 ) : (
-                  <div className="flex flex-col items-center justify-center py-8">
-                    <div className="w-10 h-10 bg-[#f1f5f9] rounded-full flex items-center justify-center mb-2">
-                      <svg className="w-5 h-5 text-[#94a3b8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="kanban-empty">
+                    <div className="kanban-empty-icon">
+                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                       </svg>
                     </div>
-                    <p className="text-xs text-[#94a3b8]">No tasks</p>
+                    <p className="kanban-empty-text">No tasks</p>
                   </div>
                 )}
               </div>
@@ -193,17 +191,17 @@ export default function ProjectDetail() {
             onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
             placeholder="e.g. Collect data from region A"
           />
-          <div>
-            <label className="block text-sm font-medium text-[#475569] mb-1.5">Description</label>
+          <div className="input-group">
+            <label className="input-label">Description</label>
             <textarea
               value={newTask.description}
               onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
-              className="w-full rounded-lg border border-[#e2e8f0] px-3.5 py-2.5 text-sm text-[#0f172a] placeholder:text-[#94a3b8] bg-white shadow-sm transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"
+              className="input-field"
               rows={3}
               placeholder="Optional description"
             />
           </div>
-          <div className="flex justify-end gap-3 pt-2">
+          <div className="modal-footer" style={{ padding: 0 }}>
             <Button variant="secondary" type="button" onClick={() => setTaskModal(false)}>Cancel</Button>
             <Button type="submit" loading={creatingTask}>Create Task</Button>
           </div>

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import {
   LineChart, BarChart, PieChart, Pie, Cell,
-  XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Area, AreaChart
+  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart
 } from 'recharts';
 import Card from '../../components/ui/Card';
 import { analyticsService } from '../../services/analyticsService';
@@ -16,25 +16,18 @@ const statGradients = {
   tasks: 'from-orange-500 to-orange-600',
 };
 
-function KPICard({ title, value, change, icon, gradient }) {
+function KPICard({ title, value, icon, gradient }) {
   return (
-    <div className="bg-white rounded-xl border border-[#e2e8f0] shadow-sm p-5 transition-all duration-200 hover:shadow-md">
-      <div className="flex items-center justify-between mb-3">
-        <span className="text-sm font-medium text-[#64748b]">{title}</span>
-        <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${gradient} flex items-center justify-center shadow-sm`}>
-          <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div className="stat-card">
+      <div className="stat-card-top">
+        <span className="stat-card-label">{title}</span>
+        <div className={`stat-card-icon bg-gradient-to-br ${gradient}`}>
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d={icon} />
           </svg>
         </div>
       </div>
-      <p className="text-3xl font-bold text-[#0f172a] tracking-tight">{value}</p>
-      {change !== undefined && change !== null && (
-        <p className={`text-sm mt-1.5 flex items-center gap-1 ${change >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
-          <span>{change >= 0 ? '↑' : '↓'}</span>
-          <span className="font-medium">{Math.abs(change)}%</span>
-          <span className="text-[#94a3b8] font-normal">vs last period</span>
-        </p>
-      )}
+      <p className="stat-card-value">{value}</p>
     </div>
   );
 }
@@ -54,12 +47,12 @@ export default function Analytics() {
   if (loading) {
     return (
       <div className="space-y-6">
-        <div className="h-7 bg-[#f1f5f9] rounded w-48 animate-pulse" />
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {[1, 2, 3, 4].map((i) => <div key={i} className="h-32 bg-white rounded-xl border border-[#e2e8f0] animate-pulse" />)}
+        <div className="skel skel-h2" />
+        <div className="stat-grid">
+          {[1, 2, 3, 4].map((i) => <div key={i} className="skel skel-card" />)}
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {[1, 2].map((i) => <div key={i} className="h-80 bg-white rounded-xl border border-[#e2e8f0] animate-pulse" />)}
+        <div className="grid-2">
+          {[1, 2].map((i) => <div key={i} className="skel skel-chart" />)}
         </div>
       </div>
     );
@@ -79,10 +72,10 @@ export default function Analytics() {
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white rounded-xl border border-[#e2e8f0] shadow-lg p-3">
-          <p className="text-xs font-medium text-[#64748b] mb-1">{label}</p>
+        <div className="chart-tooltip">
+          <p className="chart-tooltip-label">{label}</p>
           {payload.map((p, i) => (
-            <p key={i} className="text-sm font-semibold text-[#0f172a]" style={{ color: p.color }}>
+            <p key={i} className="chart-tooltip-value" style={{ color: p.color }}>
               {p.name}: {p.value}
             </p>
           ))}
@@ -94,21 +87,21 @@ export default function Analytics() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold text-[#0f172a] tracking-tight">Analytics</h1>
-        <p className="text-sm text-[#64748b] mt-1">Insights into your data collection</p>
+      <div className="page-header">
+        <h1 className="page-title">Analytics</h1>
+        <p className="page-subtitle">Insights into your data collection</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div className="stat-grid">
         <KPICard title="Total Forms" value={totals.forms ?? '—'} icon={kpiIcons.forms} gradient={statGradients.forms} />
         <KPICard title="Total Submissions" value={totals.submissions ?? '—'} icon={kpiIcons.submissions} gradient={statGradients.submissions} />
         <KPICard title="Projects" value={totals.projects ?? '—'} icon={kpiIcons.projects} gradient={statGradients.projects} />
         <KPICard title="Tasks" value={totals.tasks ?? '—'} icon={kpiIcons.tasks} gradient={statGradients.tasks} />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid-2">
         <Card title="Submissions Over Time" subtitle="Daily submission volume (last 14 days)">
-          <div className="h-72">
+          <div className="chart-box">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={submissionTrend.length > 0 ? submissionTrend : []} margin={{ top: 5, right: 5, left: -20, bottom: 5 }}>
                 <defs>
@@ -128,7 +121,7 @@ export default function Analytics() {
         </Card>
 
         <Card title="Top Forms" subtitle="Forms with most submissions">
-          <div className="h-72 flex items-center justify-center">
+          <div className="chart-box flex items-center justify-center">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
@@ -152,9 +145,9 @@ export default function Analytics() {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid-2">
         <Card title="Submission Trend" subtitle="Count by date">
-          <div className="h-72">
+          <div className="chart-box">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={submissionTrend.length > 0 ? submissionTrend : []} margin={{ top: 5, right: 5, left: -20, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
@@ -181,13 +174,13 @@ export default function Analytics() {
               ))}
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center py-10">
-              <div className="w-12 h-12 bg-[#f1f5f9] rounded-full flex items-center justify-center mb-3">
-                <svg className="w-6 h-6 text-[#94a3b8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="empty-state" style={{ padding: '2.5rem 1rem' }}>
+              <div className="empty-state-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <p className="text-sm text-[#94a3b8]">No data available</p>
+              <p className="empty-state-desc">No data available</p>
             </div>
           )}
         </Card>

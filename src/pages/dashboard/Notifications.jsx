@@ -43,10 +43,10 @@ export default function Notifications() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="page-header-row">
         <div>
-          <h1 className="text-2xl font-bold text-[#0f172a] tracking-tight">Notifications</h1>
-          <p className="text-sm text-[#64748b] mt-1">Stay updated with your workspace activity</p>
+          <h1 className="page-title">Notifications</h1>
+          <p className="page-subtitle">Stay updated with your workspace activity</p>
         </div>
         {unreadCount > 0 && (
           <Button variant="secondary" size="sm" onClick={handleMarkAllRead}>
@@ -62,58 +62,59 @@ export default function Notifications() {
               <div key={i} className="flex items-start gap-4 py-4">
                 <div className="w-2 h-2 mt-2 rounded-full bg-[#e2e8f0] animate-pulse flex-shrink-0" />
                 <div className="flex-1 space-y-2">
-                  <div className="h-4 bg-[#f1f5f9] rounded animate-pulse w-1/3" />
-                  <div className="h-3 bg-[#f1f5f9] rounded animate-pulse w-2/3" />
+                  <div className="skeleton skeleton-line w-1/3" />
+                  <div className="skeleton skeleton-line w-2/3" />
                 </div>
               </div>
             ))}
           </div>
         ) : notifications.length > 0 ? (
-          <div className="divide-y divide-[#e2e8f0]">
+          <div>
             {notifications.map((notif, i) => {
               const notifData = notif.data || {};
+              const isUnread = !notif.read_at;
               return (
-                <div
-                  key={notif.id}
-                  className={`flex items-start gap-4 py-4 px-2 rounded-lg transition-colors cursor-pointer hover:bg-[#f8fafc] animate-fade-in ${
-                    !notif.read_at ? 'bg-primary-50/30' : ''
-                  }`}
-                  style={{ animationDelay: `${i * 50}ms` }}
-                  onClick={() => !notif.read_at && handleMarkRead(notif.id)}
-                >
-                  <div className={`w-2 h-2 mt-2 rounded-full flex-shrink-0 ${!notif.read_at ? 'bg-primary-500 shadow-sm shadow-primary-500/30' : 'bg-[#e2e8f0]'}`} />
-                  <div className="flex-1 min-w-0">
-                    <p className={`text-sm ${!notif.read_at ? 'font-semibold text-[#0f172a]' : 'text-[#475569]'}`}>
-                      {notifData.title || notifData.message || notif.type || 'Notification'}
-                    </p>
-                    {notifData.message && notifData.title && (
-                      <p className="text-xs text-[#64748b] mt-0.5">{notifData.message}</p>
+                <div key={notif.id}>
+                  <div
+                    className={`notif-item animate-fade-in ${isUnread ? 'notif-item-unread' : ''}`}
+                    style={{ animationDelay: `${i * 50}ms` }}
+                    onClick={() => !notif.read_at && handleMarkRead(notif.id)}
+                  >
+                    <div className={`notif-dot ${isUnread ? 'notif-dot-unread' : 'notif-dot-read'}`} />
+                    <div className="notif-body">
+                      <p className={`notif-title ${isUnread ? 'notif-title-unread' : 'notif-title-read'}`}>
+                        {notifData.title || notifData.message || notif.type || 'Notification'}
+                      </p>
+                      {notifData.message && notifData.title && (
+                        <p className="notif-message">{notifData.message}</p>
+                      )}
+                      <p className="notif-time">
+                        {notif.created_at ? new Date(notif.created_at).toLocaleString() : ''}
+                      </p>
+                    </div>
+                    {!notif.read_at && (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleMarkRead(notif.id); }}
+                        className="notif-mark"
+                      >
+                        Mark read
+                      </button>
                     )}
-                    <p className="text-xs text-[#94a3b8] mt-1.5">
-                      {notif.created_at ? new Date(notif.created_at).toLocaleString() : ''}
-                    </p>
                   </div>
-                  {!notif.read_at && (
-                    <button
-                      onClick={(e) => { e.stopPropagation(); handleMarkRead(notif.id); }}
-                      className="text-xs text-primary-600 hover:text-primary-700 font-medium flex-shrink-0"
-                    >
-                      Mark read
-                    </button>
-                  )}
+                  {i < notifications.length - 1 && <div className="notif-divider" />}
                 </div>
               );
             })}
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center py-16">
-            <div className="w-16 h-16 bg-[#f1f5f9] rounded-2xl flex items-center justify-center mb-4">
-              <svg className="w-8 h-8 text-[#94a3b8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="empty-state">
+            <div className="empty-state-icon">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
               </svg>
             </div>
-            <p className="text-sm font-medium text-[#64748b]">No notifications yet</p>
-            <p className="text-xs text-[#94a3b8] mt-1">We'll notify you when something arrives</p>
+            <p className="empty-state-title">No notifications yet</p>
+            <p className="empty-state-desc">We'll notify you when something arrives</p>
           </div>
         )}
       </Card>

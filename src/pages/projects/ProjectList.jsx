@@ -44,10 +44,13 @@ export default function ProjectList() {
     }
   };
 
-  const statusStyles = {
-    active: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-    completed: 'bg-blue-50 text-blue-700 border-blue-200',
-    archived: 'bg-[#f1f5f9] text-[#64748b] border-[#e2e8f0]',
+  const badgeClass = (status) => {
+    switch (status) {
+      case 'active': return 'badge-green';
+      case 'completed': return 'badge-blue';
+      case 'archived': return 'badge-gray';
+      default: return 'badge-gray';
+    }
   };
 
   const columns = [
@@ -60,15 +63,12 @@ export default function ProjectList() {
     { header: 'Tasks', render: (r) => (
       <span className="text-[#475569]">{r.tasks?.length ?? 0}</span>
     )},
-    { header: 'Status', render: (r) => {
-      const style = statusStyles[r.status] || 'bg-[#f1f5f9] text-[#64748b] border-[#e2e8f0]';
-      return (
-        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-full border ${style}`}>
-          <span className={`w-1.5 h-1.5 rounded-full ${r.status === 'active' ? 'bg-emerald-500' : r.status === 'completed' ? 'bg-blue-500' : 'bg-[#94a3b8]'}`} />
-          {(r.status || 'active').charAt(0).toUpperCase() + (r.status || 'active').slice(1)}
-        </span>
-      );
-    }},
+    { header: 'Status', render: (r) => (
+      <span className={`badge ${badgeClass(r.status)}`}>
+        <span className="badge-dot" />
+        {(r.status || 'active').charAt(0).toUpperCase() + (r.status || 'active').slice(1)}
+      </span>
+    )},
     { header: 'Created', render: (r) => (
       <span className="text-xs text-[#64748b]">{new Date(r.created_at).toLocaleDateString()}</span>
     )},
@@ -76,10 +76,10 @@ export default function ProjectList() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="page-header-row">
         <div>
-          <h1 className="text-2xl font-bold text-[#0f172a] tracking-tight">Projects</h1>
-          <p className="text-sm text-[#64748b] mt-1">Manage your projects and tasks</p>
+          <h1 className="page-title">Projects</h1>
+          <p className="page-subtitle">Manage your projects and tasks</p>
         </div>
         <Button onClick={() => setCreateModal(true)}>
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -101,17 +101,17 @@ export default function ProjectList() {
             onChange={(e) => setNewProject({ ...newProject, name: e.target.value })}
             placeholder="e.g. Q1 Data Collection"
           />
-          <div>
-            <label className="block text-sm font-medium text-[#475569] mb-1.5">Description</label>
+          <div className="input-group">
+            <label className="input-label">Description</label>
             <textarea
               value={newProject.description}
               onChange={(e) => setNewProject({ ...newProject, description: e.target.value })}
-              className="w-full rounded-lg border border-[#e2e8f0] px-3.5 py-2.5 text-sm text-[#0f172a] placeholder:text-[#94a3b8] bg-white shadow-sm transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 hover:border-[#cbd5e1]"
+              className="input-field"
               rows={3}
               placeholder="Brief description"
             />
           </div>
-          <div className="flex justify-end gap-3 pt-2">
+          <div className="modal-footer" style={{ padding: 0 }}>
             <Button variant="secondary" type="button" onClick={() => setCreateModal(false)}>Cancel</Button>
             <Button type="submit" loading={creating}>Create Project</Button>
           </div>

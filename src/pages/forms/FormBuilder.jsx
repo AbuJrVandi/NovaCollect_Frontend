@@ -155,10 +155,10 @@ export default function FormBuilder() {
   if (preview) {
     return (
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="page-header-row">
           <div>
-            <h1 className="text-xl font-bold text-[#0f172a] tracking-tight">Preview: {formData.name || 'Untitled Form'}</h1>
-            <p className="text-sm text-[#64748b] mt-0.5">This is how your form will appear to users</p>
+            <h1 className="page-title">Preview: {formData.name || 'Untitled Form'}</h1>
+            <p className="page-subtitle">This is how your form will appear to users</p>
           </div>
           <Button variant="secondary" onClick={() => setPreview(false)}>Back to Editor</Button>
         </div>
@@ -167,12 +167,12 @@ export default function FormBuilder() {
             <div className="space-y-5">
               {section.fields?.map((field) => (
                 <div key={field._clientId} className="animate-fade-in">
-                  <label className="block text-sm font-medium text-[#475569] mb-1.5">
+                  <label className="input-label">
                     {field.label || 'Untitled Field'}
                     {field.is_required && <span className="text-red-500 ml-0.5">*</span>}
                   </label>
                   {field.type === 'dropdown' ? (
-                    <div className="w-full px-3.5 py-2.5 text-sm border border-[#e2e8f0] rounded-lg bg-[#f8fafc] text-[#94a3b8]">
+                    <div className="input-field" style={{ background: '#f8fafc', color: '#94a3b8' }}>
                       Select...
                     </div>
                   ) : field.type === 'checkbox' || field.type === 'radio' ? (
@@ -185,9 +185,9 @@ export default function FormBuilder() {
                       ))}
                     </div>
                   ) : field.type === 'textarea' ? (
-                    <div className="w-full px-3.5 py-2.5 text-sm border border-[#e2e8f0] rounded-lg bg-[#f8fafc] min-h-[80px]" />
+                    <div className="input-field" style={{ background: '#f8fafc', minHeight: '80px' }} />
                   ) : (
-                    <div className="w-full px-3.5 py-2.5 text-sm border border-[#e2e8f0] rounded-lg bg-[#f8fafc] text-[#94a3b8]" />
+                    <div className="input-field" style={{ background: '#f8fafc', color: '#94a3b8' }} />
                   )}
                 </div>
               ))}
@@ -196,7 +196,7 @@ export default function FormBuilder() {
         ))}
         {sections.length === 0 && (
           <Card>
-            <p className="text-sm text-[#94a3b8] py-8 text-center">No sections in this form</p>
+            <p className="empty-state-desc py-8 text-center">No sections in this form</p>
           </Card>
         )}
       </div>
@@ -205,10 +205,10 @@ export default function FormBuilder() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="page-header-row">
         <div>
-          <h1 className="text-2xl font-bold text-[#0f172a] tracking-tight">{isEditing ? 'Edit Form' : 'Create Form'}</h1>
-          <p className="text-sm text-[#64748b] mt-1">Design your data collection form with sections and fields</p>
+          <h1 className="page-title">{isEditing ? 'Edit Form' : 'Create Form'}</h1>
+          <p className="page-subtitle">Design your data collection form with sections and fields</p>
         </div>
         <div className="flex items-center gap-3">
           <Button variant="secondary" onClick={() => setPreview(true)}>
@@ -225,8 +225,8 @@ export default function FormBuilder() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
+      <div className="builder-grid">
+        <div className="space-y-6 lg:col-span-2">
           <Card>
             <div className="space-y-5">
               <Input
@@ -235,12 +235,12 @@ export default function FormBuilder() {
                 onChange={(e) => updateFormField('name', e.target.value)}
                 placeholder="e.g. Customer Feedback Form"
               />
-              <div>
-                <label className="block text-sm font-medium text-[#475569] mb-1.5">Description</label>
+              <div className="input-group">
+                <label className="input-label">Description</label>
                 <textarea
                   value={formData.description}
                   onChange={(e) => updateFormField('description', e.target.value)}
-                  className="w-full rounded-lg border border-[#e2e8f0] px-3.5 py-2.5 text-sm text-[#0f172a] placeholder:text-[#94a3b8] bg-white shadow-sm transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 hover:border-[#cbd5e1]"
+                  className="input-field"
                   rows={3}
                   placeholder="Brief description of this form"
                 />
@@ -270,7 +270,7 @@ export default function FormBuilder() {
                 {(section.fields || []).map((field, fi) => (
                   <div key={field._clientId} className="animate-fade-in" style={{ animationDelay: `${fi * 30}ms` }}>
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="text-xs font-mono font-medium text-[#94a3b8] bg-[#f1f5f9] px-1.5 py-0.5 rounded">
+                      <span className="field-chip">
                         {field.key || `field_${si}_${fi}`}
                       </span>
                       <div className="flex items-center gap-0.5 ml-auto">
@@ -340,17 +340,17 @@ export default function FormBuilder() {
         </div>
 
         <div className="space-y-6">
-          <div className="bg-gradient-to-br from-primary-50 to-indigo-50 rounded-xl border border-primary-100 p-4">
-            <div className="flex items-start gap-3">
-              <svg className="w-5 h-5 text-primary-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="tips-card">
+            <div className="tips-card-content">
+              <svg className="tips-card-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <div>
-                <p className="text-sm font-medium text-primary-800">Tips</p>
-                <ul className="text-xs text-primary-600 mt-2 space-y-1.5 list-disc list-inside">
+                <p className="tips-card-title">Tips</p>
+                <ul className="tips-card-list">
                   <li>Use sections to group related fields together</li>
                   <li>Each section can have its own description</li>
-                  <li>Fields use unique <code className="bg-primary-100 px-1 rounded">key</code> identifiers</li>
+                  <li>Fields use unique <code>key</code> identifiers</li>
                   <li>Use preview mode to see the final form</li>
                 </ul>
               </div>
@@ -360,10 +360,10 @@ export default function FormBuilder() {
           <Card title="Sections" subtitle={`${sections.length} section${sections.length !== 1 ? 's' : ''}`}>
             <div className="space-y-1 -mx-2">
               {sections.map((section, i) => (
-                <div key={section._clientId} className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-[#f1f5f9] transition-all">
-                  <span className="text-xs font-mono font-medium text-[#94a3b8] bg-white w-5 h-5 rounded flex items-center justify-center">{i + 1}</span>
-                  <span className="text-sm text-[#475569] flex-1 truncate">{section.title || 'Untitled'}</span>
-                  <span className="text-xs text-[#94a3b8]">{(section.fields || []).length} fields</span>
+                <div key={section._clientId} className="section-nav-item">
+                  <span className="section-nav-num">{i + 1}</span>
+                  <span className="section-nav-title">{section.title || 'Untitled'}</span>
+                  <span className="section-nav-count">{(section.fields || []).length} fields</span>
                   <div className="flex gap-0.5">
                     <button
                       onClick={() => moveSection(section._clientId, -1)}

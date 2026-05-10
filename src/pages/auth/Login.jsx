@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import useAuthStore from '../../store/authStore';
 import Button from '../../components/ui/Button';
-import Input from '../../components/ui/Input';
+import AuthLayout from '../../components/auth/AuthLayout';
+import styles from './Login.module.css';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -29,65 +30,70 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#eef2ff] via-[#f8fafc] to-[#f0fdf4] p-4">
-      <div className="w-full max-w-md animate-fade-in">
-        <div className="bg-white rounded-2xl border border-[#e2e8f0] shadow-xl shadow-[#e2e8f0]/50 p-8">
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br from-primary-500 to-primary-700 rounded-2xl mb-5 shadow-lg shadow-primary-500/20">
-              <span className="text-white font-bold text-2xl">N</span>
-            </div>
-            <h1 className="text-2xl font-bold text-[#0f172a] tracking-tight">Welcome back</h1>
-            <p className="text-sm text-[#64748b] mt-1.5">Sign in to your NovaCollect account</p>
+    <AuthLayout title="Welcome back" subtitle="Sign in to your NovaCollect account">
+      {error && (
+        <div className={styles.errorAlert}>
+          <svg className={styles.errorIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <div>
+            <p className={styles.errorTitle}>Login failed</p>
+            <p className={styles.errorMessage}>{error}</p>
           </div>
+        </div>
+      )}
 
-          {error && (
-            <div className="mb-5 px-4 py-3 bg-red-50 border border-red-100 rounded-xl text-sm text-red-700 animate-fade-in">
-              <div className="flex items-start gap-2.5">
-                <svg className="w-4 h-4 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span>{error}</span>
-              </div>
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-5" noValidate>
-            <Input
-              label="Email"
+      <form onSubmit={handleSubmit} className={styles.form} noValidate>
+        <div className={styles.field}>
+          <label className={styles.fieldLabel}>Email</label>
+          <div className={styles.inputWrapper}>
+            <svg className={styles.inputIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+            <input
               type="email"
               placeholder="you@company.com"
               value={form.email}
               onChange={(e) => setForm({ ...form, email: e.target.value })}
-              error={errors.email}
+              className={`${styles.input} ${errors.email ? styles.inputError : ''}`}
             />
-            <Input
-              label="Password"
+          </div>
+          {errors.email && <p className={styles.fieldError}>{errors.email}</p>}
+        </div>
+
+        <div className={styles.field}>
+          <div className={styles.fieldHeader}>
+            <label className={styles.fieldLabel}>Password</label>
+            <Link to="/forgot-password" className={styles.fieldForgotLink}>
+              Forgot password?
+            </Link>
+          </div>
+          <div className={styles.inputWrapper}>
+            <svg className={styles.inputIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+            <input
               type="password"
               placeholder="Enter your password"
               value={form.password}
               onChange={(e) => setForm({ ...form, password: e.target.value })}
-              error={errors.password}
+              className={`${styles.input} ${errors.password ? styles.inputError : ''}`}
             />
-
-            <div className="flex items-center justify-end">
-              <Link to="/forgot-password" className="text-sm text-primary-600 hover:text-primary-700 font-medium transition-colors">
-                Forgot password?
-              </Link>
-            </div>
-
-            <Button type="submit" loading={loading} className="w-full">
-              Sign in
-            </Button>
-          </form>
-
-          <p className="text-center text-sm text-[#64748b] mt-6">
-            Don't have an account?{' '}
-            <Link to="/register" className="text-primary-600 hover:text-primary-700 font-semibold transition-colors">
-              Sign up
-            </Link>
-          </p>
+          </div>
+          {errors.password && <p className={styles.fieldError}>{errors.password}</p>}
         </div>
-      </div>
-    </div>
+
+        <Button type="submit" loading={loading} className={styles.submitBtn}>
+          Sign in
+        </Button>
+      </form>
+
+      <p className={styles.footer}>
+        Don't have an account?{' '}
+        <Link to="/register" className={styles.footerLink}>
+          Sign up
+        </Link>
+      </p>
+    </AuthLayout>
   );
 }
