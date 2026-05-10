@@ -30,6 +30,7 @@ export function createField(type = 'text', sortOrder = 0) {
     conditional_logic: null,
     default_value: null,
     help_text: '',
+    placeholder: '',
     sort_order: sortOrder,
     meta: type === 'file' ? { accept: '.pdf,.jpg,.png' } : null,
   };

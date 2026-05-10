@@ -20,7 +20,7 @@ export default function FieldRenderer({ field, value, onChange, error }) {
             value={value || ''}
             onChange={(e) => handleChange(e.target.value)}
             className={baseClass}
-            placeholder={field.help_text}
+            placeholder={field.placeholder || field.help_text}
           />
         );
 
@@ -31,7 +31,7 @@ export default function FieldRenderer({ field, value, onChange, error }) {
             value={value || ''}
             onChange={(e) => handleChange(e.target.value)}
             className={baseClass}
-            placeholder={field.help_text}
+            placeholder={field.placeholder || field.help_text}
           />
         );
 
@@ -41,7 +41,7 @@ export default function FieldRenderer({ field, value, onChange, error }) {
             value={value || ''}
             onChange={(e) => handleChange(e.target.value)}
             className={baseClass}
-            placeholder={field.help_text}
+            placeholder={field.placeholder || field.help_text}
             rows={4}
           />
         );
@@ -53,7 +53,7 @@ export default function FieldRenderer({ field, value, onChange, error }) {
             onChange={(e) => handleChange(e.target.value)}
             className={baseClass}
           >
-            <option value="">{field.help_text || 'Select...'}</option>
+            <option value="">{field.placeholder || field.help_text || 'Select...'}</option>
             {(field.options || []).map((opt, i) => (
               <option key={i} value={getOptionValue(opt)}>{getOptionLabel(opt)}</option>
             ))}
@@ -133,10 +133,10 @@ export default function FieldRenderer({ field, value, onChange, error }) {
         );
 
       case 'gps':
-        return <GPSField value={value} onChange={handleChange} />;
+        return <GPSField field={field} value={value} onChange={handleChange} />;
 
       case 'signature':
-        return <SignatureField value={value} onChange={handleChange} />;
+        return <SignatureField field={field} value={value} onChange={handleChange} />;
 
       default:
         return (
@@ -166,7 +166,7 @@ export default function FieldRenderer({ field, value, onChange, error }) {
   );
 }
 
-function GPSField({ value, onChange }) {
+function GPSField({ field, value, onChange }) {
   const getLocation = () => {
     if (!navigator.geolocation) {
       alert('Geolocation is not supported by your browser');
@@ -180,13 +180,13 @@ function GPSField({ value, onChange }) {
 
   return (
     <div className="flex items-center gap-3">
-      <input
-        type="text"
-        value={value || ''}
-        readOnly
-        className="w-full px-3.5 py-2.5 text-sm border border-[#e2e8f0] rounded-lg bg-[#f8fafc] text-[#64748b]"
-        placeholder="Click capture to get location"
-      />
+        <input
+          type="text"
+          value={value || ''}
+          readOnly
+          className="w-full px-3.5 py-2.5 text-sm border border-[#e2e8f0] rounded-lg bg-[#f8fafc] text-[#64748b]"
+          placeholder={field?.placeholder || 'Click capture to get location'}
+        />
       <button
         type="button"
         onClick={getLocation}
@@ -202,16 +202,16 @@ function GPSField({ value, onChange }) {
   );
 }
 
-function SignatureField({ value, onChange }) {
+function SignatureField({ field, value, onChange }) {
   return (
     <div className="flex items-center gap-3">
-      <input
-        type="text"
-        value={value || ''}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full px-3.5 py-2.5 text-sm border border-[#e2e8f0] rounded-lg text-[#0f172a] bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"
-        placeholder="Type your signature or use a signature pad"
-      />
-    </div>
-  );
+        <input
+          type="text"
+          value={value || ''}
+          onChange={(e) => onChange(e.target.value)}
+          className="w-full px-3.5 py-2.5 text-sm border border-[#e2e8f0] rounded-lg text-[#0f172a] bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"
+          placeholder={field?.placeholder || 'Type your signature or use a signature pad'}
+        />
+      </div>
+    );
 }

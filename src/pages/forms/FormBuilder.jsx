@@ -1,66 +1,67 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
+import FieldRenderer from '../../components/forms/FieldRenderer';
 import { formService } from '../../services/formService';
 import { createField, createSection, generateKey } from '../../components/forms/fieldTypes';
 import useAppStore from '../../store/useAppStore';
 
 const QUESTION_LIBRARY = [
-  { type: 'text', label: 'Text question', shortLabel: 'Text', description: 'Single-line response', icon: 'T' },
-  { type: 'textarea', label: 'Long text', shortLabel: 'Long text', description: 'Paragraph response', icon: 'P' },
-  { type: 'number', label: 'Number', shortLabel: 'Number', description: 'Numeric response', icon: '#' },
-  { type: 'date', label: 'Date', shortLabel: 'Date', description: 'Calendar input', icon: 'D' },
-  { type: 'radio', label: 'Select one', shortLabel: 'Select one', description: 'Pick one choice', icon: '1' },
-  { type: 'checkbox', label: 'Select many', shortLabel: 'Select many', description: 'Pick multiple choices', icon: 'M' },
-  { type: 'dropdown', label: 'Dropdown', shortLabel: 'Dropdown', description: 'Compact choice list', icon: 'V' },
-  { type: 'email', label: 'Email', shortLabel: 'Email', description: 'Email address', icon: '@' },
-  { type: 'file', label: 'File / image', shortLabel: 'File', description: 'Attachment upload', icon: 'F' },
-  { type: 'gps', label: 'GPS', shortLabel: 'GPS', description: 'Capture location', icon: 'G' },
-  { type: 'signature', label: 'Signature', shortLabel: 'Signature', description: 'Sign on device', icon: 'S' },
-];
-
-const LOGIC_OPERATORS = [
-  { value: '=', label: 'Equals' },
-  { value: '!=', label: 'Does not equal' },
-  { value: '>', label: 'Greater than' },
-  { value: '<', label: 'Less than' },
-  { value: 'contains', label: 'Contains' },
-  { value: 'answered', label: 'Has any answer' },
+  { type: 'text', label: 'Short text', shortLabel: 'Text', description: 'Single-line response', icon: 'T' },
+  { type: 'textarea', label: 'Long text', shortLabel: 'Long', description: 'Paragraph response', icon: 'P' },
+  { type: 'number', label: 'Number', shortLabel: 'Number', description: 'Numeric input', icon: '#' },
+  { type: 'date', label: 'Date', shortLabel: 'Date', description: 'Calendar date', icon: 'D' },
+  { type: 'radio', label: 'Select one', shortLabel: 'One', description: 'Choose one option', icon: '1' },
+  { type: 'checkbox', label: 'Select many', shortLabel: 'Many', description: 'Choose multiple options', icon: 'M' },
+  { type: 'dropdown', label: 'Dropdown', shortLabel: 'List', description: 'Compact select list', icon: 'V' },
+  { type: 'email', label: 'Email', shortLabel: 'Email', description: 'Email response', icon: '@' },
+  { type: 'file', label: 'File / image', shortLabel: 'File', description: 'Upload a file', icon: 'F' },
+  { type: 'gps', label: 'GPS location', shortLabel: 'GPS', description: 'Capture coordinates', icon: 'G' },
+  { type: 'signature', label: 'Signature', shortLabel: 'Sign', description: 'Signature field', icon: 'S' },
 ];
 
 const LIBRARY_BLOCKS = [
   {
     id: 'identity',
     title: 'Respondent identity',
-    description: 'Name, phone, gender, and age in one reusable block.',
+    description: 'Useful for registration or household surveys.',
     fields: [
-      { type: 'text', label: 'Respondent full name', is_required: true },
-      { type: 'text', label: 'Phone number' },
+      { type: 'text', label: 'Full name', is_required: true, placeholder: 'Enter full name' },
+      { type: 'text', label: 'Phone number', placeholder: '+234...' },
       { type: 'radio', label: 'Gender', options: ['Male', 'Female', 'Prefer not to say'] },
-      { type: 'number', label: 'Age' },
+      { type: 'number', label: 'Age', placeholder: 'Enter age' },
     ],
   },
   {
     id: 'location',
-    title: 'Location capture',
-    description: 'Useful for field surveys that need place and GPS context.',
+    title: 'Location & evidence',
+    description: 'Capture where the data came from with supporting evidence.',
     fields: [
-      { type: 'text', label: 'Village / site name', is_required: true },
-      { type: 'gps', label: 'Capture GPS location' },
-      { type: 'file', label: 'Site photo' },
+      { type: 'text', label: 'Site / community name', is_required: true },
+      { type: 'gps', label: 'GPS coordinates' },
+      { type: 'file', label: 'Photo evidence' },
     ],
   },
   {
     id: 'observation',
-    title: 'Observation notes',
-    description: 'Quick block for enumerator notes and evidence.',
+    title: 'Observation summary',
+    description: 'Great for monitoring and evaluation workflows.',
     fields: [
-      { type: 'textarea', label: 'Observation notes', is_required: true },
-      { type: 'file', label: 'Supporting photo or document' },
+      { type: 'textarea', label: 'Observation notes', is_required: true, placeholder: 'Enter your observations' },
+      { type: 'checkbox', label: 'Priority actions', options: ['Escalate', 'Monitor', 'Close'] },
       { type: 'signature', label: 'Enumerator signature' },
     ],
   },
+];
+
+const LOGIC_OPERATORS = [
+  { value: '=', label: 'Equals' },
+  { value: '!=', label: 'Does not equal' },
+  { value: 'contains', label: 'Contains' },
+  { value: '>', label: 'Greater than' },
+  { value: '<', label: 'Less than' },
+  { value: 'answered', label: 'Has any answer' },
 ];
 
 let clientIdCounter = 0;
@@ -71,7 +72,7 @@ function nextId() {
 }
 
 function isChoiceType(type) {
-  return type === 'dropdown' || type === 'checkbox' || type === 'radio';
+  return ['dropdown', 'checkbox', 'radio'].includes(type);
 }
 
 function makeOptionValue(label, index) {
@@ -112,7 +113,8 @@ function buildField(type = 'text', sortOrder = 0, seed = {}) {
     key: seed.key || generateKey('field'),
     label: seed.label || '',
     help_text: seed.help_text || '',
-    default_value: seed.default_value || '',
+    placeholder: seed.placeholder || '',
+    default_value: seed.default_value ?? '',
     is_required: Boolean(seed.is_required),
     validation_rules: Array.isArray(seed.validation_rules) ? seed.validation_rules : [],
     conditional_logic: seed.conditional_logic || null,
@@ -120,8 +122,7 @@ function buildField(type = 'text', sortOrder = 0, seed = {}) {
   };
 
   if (isChoiceType(type)) {
-    const incomingOptions = seed.options ?? base.options ?? ['Option 1'];
-    merged.options = normalizeOptions(incomingOptions);
+    merged.options = normalizeOptions(seed.options ?? base.options ?? ['Option 1']);
   } else {
     merged.options = null;
   }
@@ -176,6 +177,7 @@ function stripClientIds(sections) {
       conditional_logic: sanitizeConditionalLogic(field.conditional_logic),
       default_value: field.default_value || null,
       help_text: field.help_text || '',
+      placeholder: field.placeholder || null,
       sort_order: fieldIndex,
       meta: field.type === 'file' ? { ...(field.meta || {}) } : field.meta || null,
     })),
@@ -187,22 +189,23 @@ function getQuestionMeta(type) {
 }
 
 function getQuestionLabel(field, fallbackIndex) {
-  if (field?.label?.trim()) return field.label.trim();
-  return `Question ${fallbackIndex + 1}`;
+  return field?.label?.trim() || `Question ${fallbackIndex + 1}`;
 }
 
-function getFieldPreview(field) {
-  if (field.type === 'dropdown') return 'Select from list';
-  if (field.type === 'radio') return `${field.options?.length || 0} single-choice option${field.options?.length === 1 ? '' : 's'}`;
-  if (field.type === 'checkbox') return `${field.options?.length || 0} multi-select option${field.options?.length === 1 ? '' : 's'}`;
-  if (field.type === 'file') return field.meta?.accept ? `Accepts ${field.meta.accept}` : 'File upload';
-  if (field.type === 'gps') return 'Captures coordinates on device';
-  if (field.type === 'signature') return 'Signature pad';
-  if (field.type === 'date') return 'Calendar date';
-  if (field.type === 'number') return 'Numeric input';
-  if (field.type === 'email') return 'Email input';
-  if (field.type === 'textarea') return 'Paragraph response';
-  return 'Short response';
+function getQuestionReferenceList(sections, excludeFieldId) {
+  const references = [];
+
+  sections.forEach((section) => {
+    (section.fields || []).forEach((field, index) => {
+      if (field._clientId === excludeFieldId) return;
+      references.push({
+        key: field.key,
+        label: `${section.title || 'Group'} · ${getQuestionLabel(field, index)}`,
+      });
+    });
+  });
+
+  return references;
 }
 
 function findFieldContext(sections, fieldId) {
@@ -217,46 +220,165 @@ function findFieldContext(sections, fieldId) {
   return null;
 }
 
-function buildQuestionReferenceList(sections, excludeFieldId) {
-  const result = [];
+function getDefaultPreviewValue(field) {
+  if (field.type === 'checkbox') {
+    return Array.isArray(field.default_value) ? field.default_value : [];
+  }
+
+  if (field.type === 'file') return null;
+
+  return field.default_value ?? '';
+}
+
+function getPreviewDefaults(sections) {
+  const values = {};
 
   sections.forEach((section) => {
-    (section.fields || []).forEach((field, index) => {
-      if (field._clientId === excludeFieldId) return;
-      result.push({
-        key: field.key,
-        label: `${section.title || 'Group'} · ${getQuestionLabel(field, index)}`,
-      });
+    (section.fields || []).forEach((field) => {
+      values[field.key] = getDefaultPreviewValue(field);
     });
   });
 
-  return result;
+  return values;
+}
+
+function isAnswered(value) {
+  if (Array.isArray(value)) return value.length > 0;
+  if (value && typeof value === 'object') return Object.keys(value).length > 0;
+  return value !== null && value !== undefined && String(value).trim() !== '';
+}
+
+function matchesConditionalLogic(field, values) {
+  const logic = field.conditional_logic;
+  if (!logic?.questionKey || !logic?.operator) return true;
+
+  const sourceValue = values[logic.questionKey];
+  const compareValue = logic.value;
+
+  switch (logic.operator) {
+    case '=':
+      return Array.isArray(sourceValue) ? sourceValue.includes(compareValue) : String(sourceValue ?? '') === String(compareValue ?? '');
+    case '!=':
+      return Array.isArray(sourceValue) ? !sourceValue.includes(compareValue) : String(sourceValue ?? '') !== String(compareValue ?? '');
+    case 'contains':
+      return Array.isArray(sourceValue)
+        ? sourceValue.includes(compareValue)
+        : String(sourceValue ?? '').toLowerCase().includes(String(compareValue ?? '').toLowerCase());
+    case '>':
+      return Number(sourceValue) > Number(compareValue);
+    case '<':
+      return Number(sourceValue) < Number(compareValue);
+    case 'answered':
+      return isAnswered(sourceValue);
+    default:
+      return true;
+  }
+}
+
+function validatePreview(sections, values) {
+  const errors = {};
+
+  sections.forEach((section) => {
+    (section.fields || []).forEach((field) => {
+      if (!matchesConditionalLogic(field, values)) return;
+
+      const value = values[field.key];
+      const optionValues = normalizeOptions(field.options || []).map((option) => option.value);
+
+      if (field.is_required && !isAnswered(value)) {
+        errors[field.key] = 'This question is required.';
+        return;
+      }
+
+      if (!isAnswered(value)) return;
+
+      if (field.type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value))) {
+        errors[field.key] = 'Enter a valid email address.';
+      } else if (field.type === 'number' && Number.isNaN(Number(value))) {
+        errors[field.key] = 'Enter a valid number.';
+      } else if (field.type === 'dropdown' || field.type === 'radio') {
+        if (optionValues.length > 0 && !optionValues.includes(value)) {
+          errors[field.key] = 'Choose one of the available options.';
+        }
+      } else if (field.type === 'checkbox') {
+        if (!Array.isArray(value)) {
+          errors[field.key] = 'Select one or more options.';
+        } else if (value.some((item) => !optionValues.includes(item))) {
+          errors[field.key] = 'One or more selected options are invalid.';
+        }
+      }
+    });
+  });
+
+  return errors;
+}
+
+function getVisibleFieldCount(sections, values) {
+  let count = 0;
+
+  sections.forEach((section) => {
+    (section.fields || []).forEach((field) => {
+      if (matchesConditionalLogic(field, values)) count += 1;
+    });
+  });
+
+  return count;
+}
+
+function getAnsweredVisibleFieldCount(sections, values) {
+  let count = 0;
+
+  sections.forEach((section) => {
+    (section.fields || []).forEach((field) => {
+      if (matchesConditionalLogic(field, values) && isAnswered(values[field.key])) count += 1;
+    });
+  });
+
+  return count;
+}
+
+function getFieldPreviewText(field) {
+  if (field.type === 'dropdown') return field.placeholder || 'Dropdown list';
+  if (field.type === 'radio') return `${field.options?.length || 0} single-select options`;
+  if (field.type === 'checkbox') return `${field.options?.length || 0} multi-select options`;
+  if (field.type === 'file') return field.meta?.accept ? `Accepts ${field.meta.accept}` : 'File upload';
+  if (field.type === 'gps') return 'Capture location on device';
+  if (field.type === 'signature') return 'Type or draw a signature';
+  if (field.type === 'textarea') return field.placeholder || 'Paragraph answer';
+  return field.placeholder || 'Response field';
 }
 
 export default function FormBuilder() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const addToast = useAppStore((s) => s.addToast);
+  const addToast = useAppStore((state) => state.addToast);
 
   const [formData, setFormData] = useState({ name: '', description: '', status: 'draft' });
   const [sections, setSections] = useState(() => assignClientIds([buildSection('Question group 1', 0)]));
   const [saving, setSaving] = useState(false);
   const [preview, setPreview] = useState(false);
   const [selectedFieldId, setSelectedFieldId] = useState(null);
+  const [previewValues, setPreviewValues] = useState({});
+  const [previewErrors, setPreviewErrors] = useState({});
+  const [previewSubmitted, setPreviewSubmitted] = useState(false);
 
-  const isEditing = !!id;
+  const isEditing = Boolean(id);
 
   useEffect(() => {
-    if (isEditing) {
-      formService.get(id)
-        .then((form) => {
-          setFormData({ name: form.name, description: form.description || '', status: form.status || 'draft' });
-          if (form.sections?.length) {
-            setSections(assignClientIds(form.sections));
-          }
-        })
-        .catch(() => addToast({ type: 'error', message: 'Failed to load form' }));
-    }
+    if (!isEditing) return;
+
+    formService.get(id)
+      .then((form) => {
+        setFormData({
+          name: form.name,
+          description: form.description || '',
+          status: form.status || 'draft',
+        });
+        if (form.sections?.length) {
+          setSections(assignClientIds(form.sections));
+        }
+      })
+      .catch(() => addToast({ type: 'error', message: 'Failed to load form' }));
   }, [id]);
 
   useEffect(() => {
@@ -266,8 +388,7 @@ export default function FormBuilder() {
       return;
     }
 
-    const selectedExists = allFields.some((field) => field._clientId === selectedFieldId);
-    if (!selectedExists) {
+    if (!allFields.some((field) => field._clientId === selectedFieldId)) {
       setSelectedFieldId(allFields[0]._clientId);
     }
   }, [sections, selectedFieldId]);
@@ -275,7 +396,10 @@ export default function FormBuilder() {
   const selectedContext = findFieldContext(sections, selectedFieldId);
   const selectedSection = selectedContext?.section || null;
   const selectedField = selectedContext?.field || null;
-  const questionReferences = buildQuestionReferenceList(sections, selectedFieldId);
+  const questionReferences = getQuestionReferenceList(sections, selectedFieldId);
+  const totalQuestions = sections.reduce((count, section) => count + (section.fields?.length || 0), 0);
+  const visibleQuestions = getVisibleFieldCount(sections, previewValues);
+  const answeredVisibleQuestions = getAnsweredVisibleFieldCount(sections, previewValues);
 
   const updateFormField = (key, value) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
@@ -354,8 +478,10 @@ export default function FormBuilder() {
         return item;
       });
 
-      const merged = [...existing, ...additions].map((field, index) => ({ ...field, sort_order: index }));
-      return { ...section, fields: merged };
+      return {
+        ...section,
+        fields: [...existing, ...additions].map((field, index) => ({ ...field, sort_order: index })),
+      };
     }));
 
     if (lastInsertedId) setSelectedFieldId(lastInsertedId);
@@ -374,14 +500,20 @@ export default function FormBuilder() {
   };
 
   const removeField = (sectionId, fieldId) => {
+    const targetSection = sections.find((section) => section._clientId === sectionId);
+    if ((targetSection?.fields || []).length <= 1) {
+      addToast({ type: 'error', message: 'Each question group must contain at least one question.' });
+      return;
+    }
+
     setSections((prev) => prev.map((section) => {
       if (section._clientId !== sectionId) return section;
-      return {
-        ...section,
-        fields: (section.fields || [])
-          .filter((field) => field._clientId !== fieldId)
-          .map((field, index) => ({ ...field, sort_order: index })),
-      };
+
+      const nextFields = (section.fields || [])
+        .filter((field) => field._clientId !== fieldId)
+        .map((field, index) => ({ ...field, sort_order: index }));
+
+      return { ...section, fields: nextFields };
     }));
   };
 
@@ -435,13 +567,11 @@ export default function FormBuilder() {
         ...section,
         fields: (section.fields || []).map((field) => {
           if (field._clientId !== fieldId) return field;
-
           const options = normalizeOptions(field.options || []);
           options[optionIndex] = {
             label: value,
             value: makeOptionValue(value, optionIndex),
           };
-
           return { ...field, options };
         }),
       };
@@ -456,7 +586,6 @@ export default function FormBuilder() {
         ...section,
         fields: (section.fields || []).map((field) => {
           if (field._clientId !== fieldId) return field;
-
           const options = normalizeOptions(field.options || []);
           const nextLabel = `Option ${options.length + 1}`;
           return {
@@ -486,6 +615,42 @@ export default function FormBuilder() {
     }));
   };
 
+  const openPreview = () => {
+    setPreviewValues(getPreviewDefaults(sections));
+    setPreviewErrors({});
+    setPreviewSubmitted(false);
+    setPreview(true);
+  };
+
+  const resetPreview = () => {
+    setPreviewValues(getPreviewDefaults(sections));
+    setPreviewErrors({});
+    setPreviewSubmitted(false);
+  };
+
+  const handlePreviewChange = (key, value) => {
+    setPreviewValues((prev) => ({ ...prev, [key]: value }));
+    setPreviewErrors((prev) => {
+      const next = { ...prev };
+      delete next[key];
+      return next;
+    });
+  };
+
+  const handlePreviewSubmit = (event) => {
+    event.preventDefault();
+    const errors = validatePreview(sections, previewValues);
+    setPreviewErrors(errors);
+
+    if (Object.keys(errors).length > 0) {
+      addToast({ type: 'error', message: 'Preview validation failed. Review the highlighted questions.' });
+      return;
+    }
+
+    setPreviewSubmitted(true);
+    addToast({ type: 'success', message: 'Preview completed successfully.' });
+  };
+
   const handleSubmit = async () => {
     if (!formData.name.trim()) {
       addToast({ type: 'error', message: 'Form name is required' });
@@ -503,8 +668,8 @@ export default function FormBuilder() {
         addToast({ type: 'success', message: 'Form created successfully' });
       }
       navigate('/forms');
-    } catch (err) {
-      addToast({ type: 'error', message: err.response?.data?.message || 'Failed to save form' });
+    } catch (error) {
+      addToast({ type: 'error', message: error.response?.data?.message || 'Failed to save form' });
     } finally {
       setSaving(false);
     }
@@ -512,112 +677,205 @@ export default function FormBuilder() {
 
   if (preview) {
     return (
-      <div className="page-shell">
-        <div className="page-header-row">
-          <div>
-            <div className="page-kicker">Preview Mode</div>
-            <h1 className="page-title">Preview: {formData.name || 'Untitled Form'}</h1>
-            <p className="page-subtitle">This is how your form will appear to users</p>
+      <div className="page-shell space-y-6">
+        <div className="rounded-[30px] bg-[linear-gradient(135deg,#10203f_0%,#1d4ed8_50%,#0f766e_100%)] p-6 text-white shadow-[0_28px_80px_rgba(19,41,86,0.24)]">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+            <div className="space-y-3">
+              <div className="inline-flex items-center rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-white/80">
+                Live Preview
+              </div>
+              <div>
+                <h1 className="text-3xl font-semibold tracking-[-0.04em]">{formData.name || 'Untitled form'}</h1>
+                <p className="mt-2 max-w-2xl text-sm text-white/75">
+                  Fill this preview exactly like an end user would. Required validation, skip logic, defaults, placeholders, and choice fields are all active here.
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Button variant="secondary" onClick={resetPreview}>Reset answers</Button>
+              <Button variant="secondary" onClick={() => setPreview(false)}>Back to builder</Button>
+            </div>
           </div>
-          <Button variant="secondary" onClick={() => setPreview(false)}>Back to Editor</Button>
         </div>
 
-        {sections.map((section) => (
-          <Card key={section._clientId} title={section.title} subtitle={section.description || undefined}>
-            <div className="space-y-5">
-              {(section.fields || []).map((field, index) => (
-                <div key={field._clientId} className="animate-fade-in">
-                  <label className="input-label">
-                    {getQuestionLabel(field, index)}
-                    {field.is_required && <span className="ml-1 text-red-500">*</span>}
-                  </label>
-                  {field.help_text && <p className="mb-2 text-sm text-[#64748b]">{field.help_text}</p>}
-                  {field.type === 'dropdown' ? (
-                    <div className="input-field" style={{ background: '#f8fafc', color: '#94a3b8' }}>Select...</div>
-                  ) : field.type === 'checkbox' || field.type === 'radio' ? (
-                    <div className="space-y-2">
-                      {(field.options || []).map((option, optionIndex) => (
-                        <label key={optionIndex} className="flex items-center gap-2.5 text-sm text-[#475569]">
-                          <div className={`w-4 h-4 border-2 border-[#cbd5e1] ${field.type === 'radio' ? 'rounded-full' : 'rounded-md'}`} />
-                          {typeof option === 'object' ? option.label : option}
-                        </label>
-                      ))}
+        <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
+          <form onSubmit={handlePreviewSubmit} className="space-y-6">
+            <Card className="overflow-hidden">
+              <div className="rounded-[24px] bg-[linear-gradient(180deg,rgba(248,251,255,0.96),rgba(255,255,255,0.94))] p-5">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <p className="text-sm font-semibold text-[#10203f]">Collection progress</p>
+                    <p className="mt-1 text-sm text-[#6b7a99]">
+                      {answeredVisibleQuestions} of {visibleQuestions || totalQuestions} visible questions answered
+                    </p>
+                  </div>
+                  <div className="w-full sm:w-64">
+                    <div className="h-2 rounded-full bg-[rgba(166,183,219,0.18)]">
+                      <div
+                        className="h-2 rounded-full bg-[linear-gradient(90deg,#2b63f6,#0f766e)] transition-all"
+                        style={{ width: `${visibleQuestions > 0 ? (answeredVisibleQuestions / visibleQuestions) * 100 : 0}%` }}
+                      />
                     </div>
-                  ) : field.type === 'textarea' ? (
-                    <div className="input-field" style={{ background: '#f8fafc', minHeight: '84px' }} />
-                  ) : (
-                    <div className="input-field" style={{ background: '#f8fafc', color: '#94a3b8' }} />
-                  )}
+                  </div>
                 </div>
-              ))}
+              </div>
+            </Card>
+
+            {sections.map((section, sectionIndex) => {
+              const visibleFields = (section.fields || []).filter((field) => matchesConditionalLogic(field, previewValues));
+              if (visibleFields.length === 0) return null;
+
+              return (
+                <Card
+                  key={section._clientId}
+                  title={section.title || `Question group ${sectionIndex + 1}`}
+                  subtitle={section.description || `Section ${sectionIndex + 1}`}
+                >
+                  <div className="space-y-5">
+                    {visibleFields.map((field, fieldIndex) => (
+                      <div key={field._clientId} className="rounded-[20px] border border-[rgba(166,183,219,0.16)] bg-[rgba(248,250,255,0.72)] p-4">
+                        <FieldRenderer
+                          field={field}
+                          value={previewValues[field.key]}
+                          onChange={handlePreviewChange}
+                          error={previewErrors[field.key]}
+                        />
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          <span className="inline-flex items-center rounded-full bg-white px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#2b63f6]">
+                            {getQuestionMeta(field.type).label}
+                          </span>
+                          <span className="inline-flex items-center rounded-full bg-white px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#7b88a5]">
+                            Question {fieldIndex + 1}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+              );
+            })}
+
+            <div className="flex items-center gap-3">
+              <Button type="submit">Submit preview</Button>
+              <p className="text-sm text-[#6b7a99]">This preview validates locally and does not create a real submission.</p>
             </div>
-          </Card>
-        ))}
+          </form>
+
+          <div className="space-y-6 xl:sticky xl:top-5 xl:self-start">
+            <Card title="Preview Summary" subtitle="A live view of the current preview session.">
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="rounded-[18px] border border-[rgba(166,183,219,0.18)] bg-[rgba(248,250,255,0.82)] p-4">
+                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#7b88a5]">Visible</p>
+                    <p className="mt-2 text-2xl font-semibold text-[#10203f]">{visibleQuestions}</p>
+                  </div>
+                  <div className="rounded-[18px] border border-[rgba(166,183,219,0.18)] bg-[rgba(248,250,255,0.82)] p-4">
+                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#7b88a5]">Answered</p>
+                    <p className="mt-2 text-2xl font-semibold text-[#10203f]">{answeredVisibleQuestions}</p>
+                  </div>
+                </div>
+
+                <div className="rounded-[18px] border border-[rgba(166,183,219,0.18)] bg-[rgba(248,250,255,0.82)] p-4">
+                  <p className="text-sm font-semibold text-[#10203f]">Preview status</p>
+                  <p className="mt-2 text-sm text-[#6b7a99]">
+                    {previewSubmitted
+                      ? 'Preview completed successfully.'
+                      : 'Fill the questions and submit to test validation, defaults, and conditional visibility.'}
+                  </p>
+                </div>
+              </div>
+            </Card>
+
+            <Card title="Conditional Visibility" subtitle="Questions with skip logic appear only when their conditions are met.">
+              <div className="space-y-3">
+                {sections.flatMap((section) => section.fields || []).filter((field) => field.conditional_logic?.questionKey).length > 0 ? (
+                  sections.flatMap((section) => section.fields || [])
+                    .filter((field) => field.conditional_logic?.questionKey)
+                    .map((field) => (
+                      <div key={field._clientId} className="rounded-[16px] border border-[rgba(166,183,219,0.18)] bg-[rgba(248,250,255,0.82)] p-3">
+                        <p className="text-sm font-semibold text-[#10203f]">{field.label || 'Untitled question'}</p>
+                        <p className="mt-1 text-xs text-[#6b7a99]">
+                          Shows when <span className="font-semibold">{field.conditional_logic.questionKey}</span> {field.conditional_logic.operator} {field.conditional_logic.value || 'has any answer'}
+                        </p>
+                      </div>
+                    ))
+                ) : (
+                  <p className="text-sm text-[#6b7a99]">No skip logic configured yet.</p>
+                )}
+              </div>
+            </Card>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="page-shell space-y-6">
-      <div className="rounded-[28px] border border-[rgba(157,175,214,0.24)] bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(247,250,255,0.92))] p-5 shadow-[0_18px_45px_rgba(30,55,106,0.08)]">
-        <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
-          <div className="space-y-3">
-            <div className="page-kicker">Formbuilder</div>
-            <div className="space-y-2">
-              <input
-                value={formData.name}
-                onChange={(e) => updateFormField('name', e.target.value)}
-                className="w-full bg-transparent text-3xl font-semibold tracking-[-0.04em] text-[#10203f] outline-none"
-                placeholder="Untitled form"
-              />
-              <textarea
-                value={formData.description}
-                onChange={(e) => updateFormField('description', e.target.value)}
-                className="w-full resize-none border-0 bg-transparent p-0 text-sm text-[#5d6d8f] outline-none placeholder:text-[#97a5c0]"
-                rows={2}
-                placeholder="Describe the purpose of this form, just like a KoboToolbox project overview."
-              />
+      <div className="overflow-hidden rounded-[32px] border border-[rgba(157,175,214,0.24)] bg-[linear-gradient(135deg,rgba(255,255,255,0.98),rgba(242,247,255,0.95))] shadow-[0_24px_70px_rgba(30,55,106,0.1)]">
+        <div className="relative px-6 py-6">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(43,99,246,0.1),transparent_28%),radial-gradient(circle_at_bottom_left,rgba(15,118,110,0.08),transparent_28%)]" />
+          <div className="relative flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
+            <div className="space-y-4">
+              <div className="inline-flex items-center rounded-full border border-[rgba(43,99,246,0.14)] bg-[rgba(43,99,246,0.08)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#2b63f6]">
+                Form Studio
+              </div>
+              <div className="space-y-2">
+                <input
+                  value={formData.name}
+                  onChange={(event) => updateFormField('name', event.target.value)}
+                  className="w-full bg-transparent text-3xl font-semibold tracking-[-0.04em] text-[#10203f] outline-none placeholder:text-[#97a5c0]"
+                  placeholder="Untitled form"
+                />
+                <textarea
+                  value={formData.description}
+                  onChange={(event) => updateFormField('description', event.target.value)}
+                  className="w-full resize-none border-0 bg-transparent p-0 text-sm text-[#5d6d8f] outline-none placeholder:text-[#97a5c0]"
+                  rows={2}
+                  placeholder="Describe what this form is collecting and who should use it."
+                />
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <span className="inline-flex items-center rounded-full bg-white px-3 py-1 text-xs font-semibold text-[#10203f] shadow-[0_10px_24px_rgba(36,63,118,0.06)]">
+                  {totalQuestions} questions
+                </span>
+                <span className="inline-flex items-center rounded-full bg-white px-3 py-1 text-xs font-semibold text-[#10203f] shadow-[0_10px_24px_rgba(36,63,118,0.06)]">
+                  {sections.length} group{sections.length === 1 ? '' : 's'}
+                </span>
+                <span className="inline-flex items-center rounded-full bg-white px-3 py-1 text-xs font-semibold text-[#10203f] shadow-[0_10px_24px_rgba(36,63,118,0.06)]">
+                  {formData.status}
+                </span>
+              </div>
             </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center rounded-full border border-[rgba(43,99,246,0.16)] bg-[rgba(43,99,246,0.08)] px-3 py-1 text-xs font-semibold text-[#2b63f6]">
-                {sections.reduce((count, section) => count + (section.fields?.length || 0), 0)} questions
-              </span>
-              <span className="inline-flex items-center rounded-full border border-[rgba(15,118,110,0.16)] bg-[rgba(15,118,110,0.08)] px-3 py-1 text-xs font-semibold text-[#0f766e]">
-                {sections.length} group{sections.length === 1 ? '' : 's'}
-              </span>
-              <span className="inline-flex items-center rounded-full border border-[rgba(245,158,11,0.16)] bg-[rgba(245,158,11,0.1)] px-3 py-1 text-xs font-semibold text-[#b45309]">
-                {formData.status === 'published' ? 'Published' : 'Draft'}
-              </span>
-            </div>
-          </div>
 
-          <div className="flex flex-wrap gap-2">
-            <Button variant="secondary" onClick={() => setPreview(true)}>
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-              </svg>
-              Preview form
-            </Button>
-            <Button variant="secondary" onClick={() => navigate('/forms')}>Cancel</Button>
-            <Button loading={saving} onClick={handleSubmit}>
-              {isEditing ? 'Save changes' : 'Create form'}
-            </Button>
+            <div className="flex flex-wrap gap-2">
+              <Button variant="secondary" onClick={openPreview}>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+                Live preview
+              </Button>
+              <Button variant="secondary" onClick={() => navigate('/forms')}>Cancel</Button>
+              <Button loading={saving} onClick={handleSubmit}>
+                {isEditing ? 'Save form' : 'Create form'}
+              </Button>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[280px_minmax(0,1fr)_320px]">
+      <div className="grid gap-6 xl:grid-cols-[280px_minmax(0,1fr)_340px]">
         <div className="space-y-6 xl:sticky xl:top-5 xl:self-start">
-          <Card title="Question Types" subtitle="Add questions like KoboToolbox’s left-side builder.">
+          <Card title="Question Types" subtitle="Add new questions quickly.">
             <div className="grid gap-2">
               {QUESTION_LIBRARY.map((question) => (
                 <button
                   key={question.type}
                   onClick={() => addField(selectedSection?._clientId || sections[0]._clientId, question.type)}
-                  className="flex items-center gap-3 rounded-[18px] border border-[rgba(166,183,219,0.18)] bg-[rgba(248,250,255,0.9)] px-3 py-3 text-left transition-all hover:border-[rgba(43,99,246,0.26)] hover:bg-white"
+                  className="flex items-center gap-3 rounded-[18px] border border-[rgba(166,183,219,0.18)] bg-[rgba(248,250,255,0.92)] px-3 py-3 text-left transition-all hover:border-[rgba(43,99,246,0.24)] hover:bg-white"
                 >
-                  <span className="flex h-10 w-10 items-center justify-center rounded-[14px] bg-[linear-gradient(135deg,rgba(43,99,246,0.12),rgba(111,93,255,0.12))] text-sm font-bold text-[#2b63f6]">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-[14px] bg-[linear-gradient(135deg,rgba(43,99,246,0.12),rgba(15,118,110,0.12))] text-sm font-bold text-[#2b63f6]">
                     {question.icon}
                   </span>
                   <span className="min-w-0">
@@ -629,7 +887,7 @@ export default function FormBuilder() {
             </div>
           </Card>
 
-          <Card title="Question Library" subtitle="Reusable blocks inspired by KoboToolbox’s library.">
+          <Card title="Reusable Blocks" subtitle="Start faster with prebuilt question sets.">
             <div className="space-y-3">
               {LIBRARY_BLOCKS.map((block) => (
                 <div key={block.id} className="rounded-[18px] border border-[rgba(166,183,219,0.18)] bg-[rgba(248,250,255,0.86)] p-4">
@@ -641,14 +899,14 @@ export default function FormBuilder() {
                     className="mt-3 w-full"
                     onClick={() => addLibraryBlock(block, selectedSection?._clientId || sections[0]._clientId)}
                   >
-                    Add block to form
+                    Add block
                   </Button>
                 </div>
               ))}
             </div>
           </Card>
 
-          <Card title="Question Groups" subtitle="Use groups to organize sections of the questionnaire.">
+          <Card title="Question Groups" subtitle="Organize the flow into clean sections.">
             <div className="space-y-2">
               {sections.map((section, sectionIndex) => (
                 <button
@@ -660,7 +918,7 @@ export default function FormBuilder() {
                       : 'border-[rgba(166,183,219,0.18)] bg-[rgba(248,250,255,0.86)] hover:bg-white'
                   }`}
                 >
-                  <span className="flex h-9 w-9 items-center justify-center rounded-[12px] bg-white text-xs font-bold text-[#2b63f6] shadow-[0_6px_16px_rgba(36,63,118,0.08)]">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-[12px] bg-white text-xs font-bold text-[#2b63f6] shadow-[0_8px_18px_rgba(36,63,118,0.08)]">
                     {sectionIndex + 1}
                   </span>
                   <span className="min-w-0 flex-1">
@@ -673,7 +931,7 @@ export default function FormBuilder() {
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
                 </svg>
-                Add question group
+                Add group
               </Button>
             </div>
           </Card>
@@ -684,8 +942,8 @@ export default function FormBuilder() {
             <Card
               key={section._clientId}
               className="overflow-hidden"
-              title={`Question group ${sectionIndex + 1}`}
-              subtitle="Questions can be arranged, duplicated, and configured like KoboToolbox groups."
+              title={section.title || `Question group ${sectionIndex + 1}`}
+              subtitle="Design the questions in this section."
               action={(
                 <div className="flex items-center gap-1">
                   <button
@@ -719,20 +977,20 @@ export default function FormBuilder() {
               )}
             >
               <div className="space-y-4">
-                <div className="rounded-[20px] border border-[rgba(166,183,219,0.16)] bg-[rgba(248,250,255,0.9)] p-4">
+                <div className="rounded-[22px] border border-[rgba(166,183,219,0.16)] bg-[linear-gradient(180deg,rgba(248,250,255,0.94),rgba(255,255,255,0.88))] p-4">
                   <input
                     type="text"
                     value={section.title}
-                    onChange={(e) => updateSection(section._clientId, { title: e.target.value })}
-                    className="w-full bg-transparent text-xl font-semibold text-[#10203f] outline-none"
+                    onChange={(event) => updateSection(section._clientId, { title: event.target.value })}
+                    className="w-full bg-transparent text-xl font-semibold text-[#10203f] outline-none placeholder:text-[#90a0bd]"
                     placeholder="Question group title"
                   />
                   <textarea
                     value={section.description || ''}
-                    onChange={(e) => updateSection(section._clientId, { description: e.target.value })}
+                    onChange={(event) => updateSection(section._clientId, { description: event.target.value })}
                     className="mt-2 w-full resize-none border-0 bg-transparent p-0 text-sm text-[#64748b] outline-none placeholder:text-[#9aa6c0]"
                     rows={2}
-                    placeholder="Optional group description or instructions for the enumerator."
+                    placeholder="Optional group description or instructions."
                   />
                 </div>
 
@@ -744,86 +1002,80 @@ export default function FormBuilder() {
                   return (
                     <div
                       key={field._clientId}
+                      onClick={() => setSelectedFieldId(field._clientId)}
                       className={`rounded-[24px] border p-5 transition-all ${
                         isSelected
-                          ? 'border-[rgba(43,99,246,0.28)] bg-white shadow-[0_20px_44px_rgba(43,99,246,0.08)]'
+                          ? 'border-[rgba(43,99,246,0.28)] bg-white shadow-[0_18px_40px_rgba(43,99,246,0.08)]'
                           : 'border-[rgba(166,183,219,0.18)] bg-[rgba(248,250,255,0.9)] hover:bg-white'
                       }`}
-                      onClick={() => setSelectedFieldId(field._clientId)}
                     >
                       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                        <div className="flex min-w-0 items-start gap-3">
-                          <div className="flex h-11 w-11 items-center justify-center rounded-[16px] bg-[linear-gradient(135deg,rgba(43,99,246,0.12),rgba(111,93,255,0.12))] text-sm font-bold text-[#2b63f6]">
-                            {questionMeta.icon}
-                          </div>
-                          <div className="min-w-0 flex-1 space-y-3">
-                            <div className="flex flex-wrap items-center gap-2">
-                              <span className="inline-flex items-center rounded-full bg-[rgba(43,99,246,0.08)] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#2b63f6]">
-                                {questionMeta.shortLabel}
+                        <div className="min-w-0 flex-1 space-y-4">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="inline-flex items-center rounded-full bg-[rgba(43,99,246,0.08)] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#2b63f6]">
+                              {questionMeta.label}
+                            </span>
+                            {field.is_required && (
+                              <span className="inline-flex items-center rounded-full bg-[rgba(239,68,68,0.08)] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#dc2626]">
+                                Required
                               </span>
-                              {field.is_required && (
-                                <span className="inline-flex items-center rounded-full bg-[rgba(239,68,68,0.08)] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#dc2626]">
-                                  Required
-                                </span>
-                              )}
-                              {field.conditional_logic?.questionKey && (
-                                <span className="inline-flex items-center rounded-full bg-[rgba(15,118,110,0.08)] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#0f766e]">
-                                  Skip logic
-                                </span>
-                              )}
-                            </div>
-
-                            <input
-                              type="text"
-                              value={field.label}
-                              onChange={(e) => updateField(section._clientId, field._clientId, { label: e.target.value })}
-                              className="w-full bg-transparent text-lg font-semibold text-[#10203f] outline-none placeholder:text-[#90a0bd]"
-                              placeholder="Type your question"
-                            />
-
-                            <input
-                              type="text"
-                              value={field.help_text || ''}
-                              onChange={(e) => updateField(section._clientId, field._clientId, { help_text: e.target.value })}
-                              className="w-full rounded-[14px] border border-[rgba(166,183,219,0.18)] bg-white px-3 py-2 text-sm text-[#51617f] outline-none transition-colors focus:border-[rgba(43,99,246,0.32)]"
-                              placeholder="Question hint or guidance for the enumerator"
-                            />
-
-                            <div className="rounded-[18px] border border-dashed border-[rgba(166,183,219,0.26)] bg-[rgba(255,255,255,0.68)] px-4 py-3 text-sm text-[#6b7a99]">
-                              {getFieldPreview(field)}
-                            </div>
-
-                            {isChoiceType(field.type) && (
-                              <div className="space-y-2">
-                                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#7b88a5]">Choices</p>
-                                {options.map((option, optionIndex) => (
-                                  <div key={`${field._clientId}_option_${optionIndex}`} className="flex items-center gap-2">
-                                    <span className="flex h-9 w-9 items-center justify-center rounded-[12px] border border-[rgba(166,183,219,0.18)] bg-white text-xs font-bold text-[#2b63f6]">
-                                      {optionIndex + 1}
-                                    </span>
-                                    <input
-                                      type="text"
-                                      value={option.label}
-                                      onChange={(e) => updateOption(section._clientId, field._clientId, optionIndex, e.target.value)}
-                                      className="input-field"
-                                      placeholder={`Choice ${optionIndex + 1}`}
-                                    />
-                                    <button
-                                      onClick={() => removeOption(section._clientId, field._clientId, optionIndex)}
-                                      className="rounded-[12px] p-2 text-[#94a3b8] transition-colors hover:bg-red-50 hover:text-[#ef4444]"
-                                    >
-                                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                                      </svg>
-                                    </button>
-                                  </div>
-                                ))}
-                                <Button size="sm" variant="secondary" onClick={() => addOption(section._clientId, field._clientId)}>
-                                  Add choice
-                                </Button>
-                              </div>
+                            )}
+                            {field.conditional_logic?.questionKey && (
+                              <span className="inline-flex items-center rounded-full bg-[rgba(15,118,110,0.08)] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#0f766e]">
+                                Skip logic
+                              </span>
                             )}
                           </div>
+
+                          <input
+                            type="text"
+                            value={field.label}
+                            onChange={(event) => updateField(section._clientId, field._clientId, { label: event.target.value })}
+                            className="w-full bg-transparent text-lg font-semibold text-[#10203f] outline-none placeholder:text-[#90a0bd]"
+                            placeholder="Type your question"
+                          />
+
+                          <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]">
+                            <div className="rounded-[18px] border border-dashed border-[rgba(166,183,219,0.24)] bg-[rgba(255,255,255,0.72)] px-4 py-3">
+                              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#7b88a5]">Preview hint</p>
+                              <p className="mt-2 text-sm text-[#51617f]">{getFieldPreviewText(field)}</p>
+                            </div>
+                            <div className="rounded-[18px] border border-dashed border-[rgba(166,183,219,0.24)] bg-[rgba(255,255,255,0.72)] px-4 py-3">
+                              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#7b88a5]">Help text</p>
+                              <p className="mt-2 text-sm text-[#51617f]">{field.help_text || 'No helper text yet.'}</p>
+                            </div>
+                          </div>
+
+                          {isChoiceType(field.type) && (
+                            <div className="space-y-2">
+                              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#7b88a5]">Choices</p>
+                              {options.map((option, optionIndex) => (
+                                <div key={`${field._clientId}_option_${optionIndex}`} className="flex items-center gap-2">
+                                  <span className="flex h-9 w-9 items-center justify-center rounded-[12px] border border-[rgba(166,183,219,0.18)] bg-white text-xs font-bold text-[#2b63f6]">
+                                    {optionIndex + 1}
+                                  </span>
+                                  <input
+                                    type="text"
+                                    value={option.label}
+                                    onChange={(event) => updateOption(section._clientId, field._clientId, optionIndex, event.target.value)}
+                                    className="input-field"
+                                    placeholder={`Choice ${optionIndex + 1}`}
+                                  />
+                                  <button
+                                    onClick={() => removeOption(section._clientId, field._clientId, optionIndex)}
+                                    className="rounded-[12px] p-2 text-[#94a3b8] transition-colors hover:bg-red-50 hover:text-[#ef4444]"
+                                  >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                  </button>
+                                </div>
+                              ))}
+                              <Button size="sm" variant="secondary" onClick={() => addOption(section._clientId, field._clientId)}>
+                                Add choice
+                              </Button>
+                            </div>
+                          )}
                         </div>
 
                         <div className="flex items-center gap-1">
@@ -882,13 +1134,6 @@ export default function FormBuilder() {
                   );
                 })}
 
-                {(section.fields || []).length === 0 && (
-                  <div className="rounded-[22px] border border-dashed border-[rgba(166,183,219,0.28)] bg-[rgba(248,250,255,0.72)] p-6 text-center">
-                    <p className="text-sm font-medium text-[#51617f]">This group is empty.</p>
-                    <p className="mt-1 text-sm text-[#7b88a5]">Add the first question from the library or quick question buttons.</p>
-                  </div>
-                )}
-
                 <div className="flex flex-wrap gap-2">
                   {QUESTION_LIBRARY.slice(0, 8).map((question) => (
                     <button
@@ -906,13 +1151,13 @@ export default function FormBuilder() {
         </div>
 
         <div className="space-y-6 xl:sticky xl:top-5 xl:self-start">
-          <Card title="Form Setup" subtitle="Project-level settings similar to KoboToolbox’s form overview.">
+          <Card title="Form Setup" subtitle="High-level settings for this form.">
             <div className="space-y-4">
               <div>
                 <label className="input-label">Collection status</label>
                 <select
                   value={formData.status}
-                  onChange={(e) => updateFormField('status', e.target.value)}
+                  onChange={(event) => updateFormField('status', event.target.value)}
                   className="input-field"
                 >
                   <option value="draft">Draft</option>
@@ -921,19 +1166,32 @@ export default function FormBuilder() {
                 </select>
               </div>
               <div className="rounded-[18px] border border-[rgba(166,183,219,0.18)] bg-[rgba(248,250,255,0.86)] p-4 text-sm text-[#6b7a99]">
-                Question IDs and backend keys are generated automatically and stay out of the authoring UI.
+                Field keys, options, logic, placeholders, defaults, and file metadata are all stored through the API and synced to the backend schema.
               </div>
             </div>
           </Card>
 
-          <Card title="Question Settings" subtitle={selectedField ? 'Adjust the selected question just like Kobo’s right-side settings panel.' : 'Select a question to edit its settings.'}>
+          <Card title="Selected Group" subtitle={selectedSection ? 'The group that contains the active question.' : 'Select a question to see its group.'}>
+            {selectedSection ? (
+              <div className="space-y-3">
+                <div className="rounded-[18px] border border-[rgba(166,183,219,0.18)] bg-[rgba(248,250,255,0.86)] p-4">
+                  <p className="text-sm font-semibold text-[#10203f]">{selectedSection.title || 'Untitled group'}</p>
+                  <p className="mt-1 text-sm text-[#6b7a99]">{selectedSection.description || 'No group description yet.'}</p>
+                </div>
+              </div>
+            ) : (
+              <p className="text-sm text-[#6b7a99]">Select a question card in the middle column.</p>
+            )}
+          </Card>
+
+          <Card title="Question Settings" subtitle={selectedField ? 'Edit how the selected question behaves.' : 'Select a question to edit its settings.'}>
             {selectedField && selectedSection ? (
               <div className="space-y-4">
                 <div>
                   <label className="input-label">Question type</label>
                   <div className="rounded-[16px] border border-[rgba(166,183,219,0.18)] bg-[rgba(248,250,255,0.86)] px-4 py-3">
                     <p className="text-sm font-semibold text-[#10203f]">{getQuestionMeta(selectedField.type).label}</p>
-                    <p className="mt-1 text-xs text-[#6b7a99]">Question type is chosen when the question is added, matching KoboToolbox’s builder flow.</p>
+                    <p className="mt-1 text-xs text-[#6b7a99]">Type is locked to keep the question structure predictable.</p>
                   </div>
                 </div>
 
@@ -942,20 +1200,31 @@ export default function FormBuilder() {
                   <input
                     type="text"
                     value={selectedField.label}
-                    onChange={(e) => updateField(selectedSection._clientId, selectedField._clientId, { label: e.target.value })}
+                    onChange={(event) => updateField(selectedSection._clientId, selectedField._clientId, { label: event.target.value })}
                     className="input-field"
                     placeholder="Question label"
                   />
                 </div>
 
                 <div>
-                  <label className="input-label">Question hint</label>
+                  <label className="input-label">Help text</label>
                   <textarea
                     value={selectedField.help_text || ''}
-                    onChange={(e) => updateField(selectedSection._clientId, selectedField._clientId, { help_text: e.target.value })}
+                    onChange={(event) => updateField(selectedSection._clientId, selectedField._clientId, { help_text: event.target.value })}
                     className="input-field"
                     rows={3}
-                    placeholder="Short guidance shown under the question"
+                    placeholder="Instruction shown under the question"
+                  />
+                </div>
+
+                <div>
+                  <label className="input-label">Placeholder</label>
+                  <input
+                    type="text"
+                    value={selectedField.placeholder || ''}
+                    onChange={(event) => updateField(selectedSection._clientId, selectedField._clientId, { placeholder: event.target.value })}
+                    className="input-field"
+                    placeholder="Text shown inside the input before it is answered"
                   />
                 </div>
 
@@ -964,7 +1233,7 @@ export default function FormBuilder() {
                   <input
                     type="text"
                     value={selectedField.default_value || ''}
-                    onChange={(e) => updateField(selectedSection._clientId, selectedField._clientId, { default_value: e.target.value })}
+                    onChange={(event) => updateField(selectedSection._clientId, selectedField._clientId, { default_value: event.target.value })}
                     className="input-field"
                     placeholder="Optional default answer"
                   />
@@ -976,7 +1245,9 @@ export default function FormBuilder() {
                     <input
                       type="text"
                       value={selectedField.meta?.accept || ''}
-                      onChange={(e) => updateField(selectedSection._clientId, selectedField._clientId, { meta: { ...(selectedField.meta || {}), accept: e.target.value } })}
+                      onChange={(event) => updateField(selectedSection._clientId, selectedField._clientId, {
+                        meta: { ...(selectedField.meta || {}), accept: event.target.value },
+                      })}
                       className="input-field"
                       placeholder=".jpg,.png,.pdf"
                     />
@@ -991,13 +1262,13 @@ export default function FormBuilder() {
                   <input
                     type="checkbox"
                     checked={selectedField.is_required || false}
-                    onChange={(e) => updateField(selectedSection._clientId, selectedField._clientId, { is_required: e.target.checked })}
+                    onChange={(event) => updateField(selectedSection._clientId, selectedField._clientId, { is_required: event.target.checked })}
                     className="h-4 w-4 rounded border-[#cbd5e1] text-primary-600 focus:ring-primary-500/30"
                   />
                 </label>
               </div>
             ) : (
-              <p className="text-sm text-[#6b7a99]">Select a question card in the middle column to configure it.</p>
+              <p className="text-sm text-[#6b7a99]">Select a question to edit its settings.</p>
             )}
           </Card>
 
@@ -1008,18 +1279,20 @@ export default function FormBuilder() {
                   <label className="input-label">Controlling question</label>
                   <select
                     value={selectedField.conditional_logic?.questionKey || ''}
-                    onChange={(e) => updateField(selectedSection._clientId, selectedField._clientId, {
-                      conditional_logic: {
-                        questionKey: e.target.value,
-                        operator: selectedField.conditional_logic?.operator || '=',
-                        value: selectedField.conditional_logic?.value || '',
-                      },
+                    onChange={(event) => updateField(selectedSection._clientId, selectedField._clientId, {
+                      conditional_logic: event.target.value
+                        ? {
+                            questionKey: event.target.value,
+                            operator: selectedField.conditional_logic?.operator || '=',
+                            value: selectedField.conditional_logic?.value || '',
+                          }
+                        : null,
                     })}
                     className="input-field"
                   >
                     <option value="">Always show this question</option>
-                    {questionReferences.map((question) => (
-                      <option key={question.key} value={question.key}>{question.label}</option>
+                    {questionReferences.map((reference) => (
+                      <option key={reference.key} value={reference.key}>{reference.label}</option>
                     ))}
                   </select>
                 </div>
@@ -1030,11 +1303,11 @@ export default function FormBuilder() {
                       <label className="input-label">Operator</label>
                       <select
                         value={selectedField.conditional_logic?.operator || '='}
-                        onChange={(e) => updateField(selectedSection._clientId, selectedField._clientId, {
+                        onChange={(event) => updateField(selectedSection._clientId, selectedField._clientId, {
                           conditional_logic: {
                             ...selectedField.conditional_logic,
-                            operator: e.target.value,
-                            value: e.target.value === 'answered' ? '' : (selectedField.conditional_logic?.value || ''),
+                            operator: event.target.value,
+                            value: event.target.value === 'answered' ? '' : (selectedField.conditional_logic?.value || ''),
                           },
                         })}
                         className="input-field"
@@ -1047,18 +1320,18 @@ export default function FormBuilder() {
 
                     {selectedField.conditional_logic?.operator !== 'answered' && (
                       <div>
-                        <label className="input-label">Value</label>
+                        <label className="input-label">Expected value</label>
                         <input
                           type="text"
                           value={selectedField.conditional_logic?.value || ''}
-                          onChange={(e) => updateField(selectedSection._clientId, selectedField._clientId, {
+                          onChange={(event) => updateField(selectedSection._clientId, selectedField._clientId, {
                             conditional_logic: {
                               ...selectedField.conditional_logic,
-                              value: e.target.value,
+                              value: event.target.value,
                             },
                           })}
                           className="input-field"
-                          placeholder="Enter the answer that should trigger this question"
+                          placeholder="Value that should trigger this question"
                         />
                       </div>
                     )}
@@ -1066,7 +1339,7 @@ export default function FormBuilder() {
                 )}
               </div>
             ) : (
-              <p className="text-sm text-[#6b7a99]">Skip logic becomes available after you select a question.</p>
+              <p className="text-sm text-[#6b7a99]">Select a question to configure skip logic.</p>
             )}
           </Card>
         </div>
