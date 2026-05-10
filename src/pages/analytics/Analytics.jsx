@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import {
-  LineChart, BarChart, PieChart, Pie, Cell,
+  BarChart, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart
 } from 'recharts';
 import Card from '../../components/ui/Card';
@@ -46,7 +46,7 @@ export default function Analytics() {
 
   if (loading) {
     return (
-      <div className="space-y-6">
+      <div className="page-shell">
         <div className="skel skel-h2" />
         <div className="stat-grid">
           {[1, 2, 3, 4].map((i) => <div key={i} className="skel skel-card" />)}
@@ -86,8 +86,9 @@ export default function Analytics() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="page-shell">
       <div className="page-header">
+        <div className="page-kicker">Performance Insights</div>
         <h1 className="page-title">Analytics</h1>
         <p className="page-subtitle">Insights into your data collection</p>
       </div>
@@ -100,7 +101,7 @@ export default function Analytics() {
       </div>
 
       <div className="grid-2">
-        <Card title="Submissions Over Time" subtitle="Daily submission volume (last 14 days)">
+        <Card title="Submissions Over Time" subtitle="Daily submission volume across the latest reporting window">
           <div className="chart-box">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={submissionTrend.length > 0 ? submissionTrend : []} margin={{ top: 5, right: 5, left: -20, bottom: 5 }}>
@@ -120,7 +121,7 @@ export default function Analytics() {
           </div>
         </Card>
 
-        <Card title="Top Forms" subtitle="Forms with most submissions">
+        <Card title="Top Forms" subtitle="Distribution of response volume by form">
           <div className="chart-box flex items-center justify-center">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -146,7 +147,7 @@ export default function Analytics() {
       </div>
 
       <div className="grid-2">
-        <Card title="Submission Trend" subtitle="Count by date">
+        <Card title="Submission Trend" subtitle="Volume breakdown by collection date">
           <div className="chart-box">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={submissionTrend.length > 0 ? submissionTrend : []} margin={{ top: 5, right: 5, left: -20, bottom: 5 }}>
@@ -160,16 +161,16 @@ export default function Analytics() {
           </div>
         </Card>
 
-        <Card title="Top Forms" subtitle="Highest submission counts">
+        <Card title="Top Forms Ranked" subtitle="Forms with the highest total submission counts">
           {topForms.length > 0 ? (
             <div className="space-y-1 -my-2">
               {topForms.slice(0, 10).map((form, i) => (
-                <div key={i} className="flex items-center gap-3 py-2.5 border-b border-[#e2e8f0] last:border-0 animate-fade-in" style={{ animationDelay: `${i * 30}ms` }}>
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-50 to-indigo-50 flex items-center justify-center">
+                <div key={i} className="flex items-center gap-3 py-3 border-b border-[rgba(176,191,225,0.18)] last:border-0 animate-fade-in" style={{ animationDelay: `${i * 30}ms` }}>
+                  <div className="w-9 h-9 rounded-[14px] bg-[linear-gradient(135deg,rgba(43,99,246,0.14),rgba(111,93,255,0.14))] flex items-center justify-center">
                     <span className="text-xs font-bold text-primary-600">{i + 1}</span>
                   </div>
-                  <span className="text-sm text-[#475569] flex-1">{form.name || form.form_name || 'Unknown Form'}</span>
-                  <span className="text-sm font-semibold text-[#0f172a]">{form.count || form.total || 0}</span>
+                  <span className="text-sm text-[#445579] flex-1">{form.name || form.form_name || 'Unknown Form'}</span>
+                  <span className="text-sm font-semibold text-[#10203f]">{form.count || form.total || 0}</span>
                 </div>
               ))}
             </div>

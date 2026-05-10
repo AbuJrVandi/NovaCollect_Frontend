@@ -72,22 +72,37 @@ export default function FormList() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="page-shell">
       <div className="page-header-row">
         <div>
+          <div className="page-kicker">Form Management</div>
           <h1 className="page-title">Forms</h1>
           <p className="page-subtitle">Create and manage your data collection forms</p>
         </div>
-        <Button onClick={() => navigate('/forms/new')}>
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
-          </svg>
-          New Form
-        </Button>
+        <div className="page-actions">
+          <Button onClick={() => navigate('/forms/new')}>
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+            </svg>
+            New Form
+          </Button>
+        </div>
       </div>
 
-      <Card>
-        <Table columns={columns} data={forms} loading={loading} onRowClick={(r) => navigate(`/forms/${r.uuid}/edit`)} />
+      <Card
+        title="Form Library"
+        subtitle="Every form definition in your workspace, ready for editing and publishing."
+        bodyNoPadding
+      >
+        <Table
+          columns={columns}
+          data={forms}
+          loading={loading}
+          onRowClick={(r) => navigate(`/forms/${r.uuid}/edit`)}
+          emptyTitle="No forms created yet"
+          emptyDescription="Start by creating your first form template. Sections, field types, and publishing controls are managed from there."
+          keyField="uuid"
+        />
       </Card>
 
       <Modal isOpen={!!deleteModal} onClose={() => setDeleteModal(null)} title="Delete form" size="sm">

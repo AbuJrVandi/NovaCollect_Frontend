@@ -75,22 +75,37 @@ export default function ProjectList() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="page-shell">
       <div className="page-header-row">
         <div>
+          <div className="page-kicker">Execution Planning</div>
           <h1 className="page-title">Projects</h1>
           <p className="page-subtitle">Manage your projects and tasks</p>
         </div>
-        <Button onClick={() => setCreateModal(true)}>
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
-          </svg>
-          New Project
-        </Button>
+        <div className="page-actions">
+          <Button onClick={() => setCreateModal(true)}>
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+            </svg>
+            New Project
+          </Button>
+        </div>
       </div>
 
-      <Card>
-        <Table columns={columns} data={projects} loading={loading} onRowClick={(r) => navigate(`/projects/${r.uuid}`)} />
+      <Card
+        title="Project Directory"
+        subtitle="Track active initiatives, task counts, delivery state, and ownership."
+        bodyNoPadding
+      >
+        <Table
+          columns={columns}
+          data={projects}
+          loading={loading}
+          onRowClick={(r) => navigate(`/projects/${r.uuid}`)}
+          emptyTitle="No projects yet"
+          emptyDescription="Create a project to organize tasks, monitor delivery, and give teams a structured execution board."
+          keyField="uuid"
+        />
       </Card>
 
       <Modal isOpen={createModal} onClose={() => setCreateModal(false)} title="Create Project">

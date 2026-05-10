@@ -50,18 +50,26 @@ export default function SubmissionList() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="page-shell">
       <div className="page-header">
+        <div className="page-kicker">Response Tracking</div>
         <h1 className="page-title">Submissions</h1>
         <p className="page-subtitle">View and manage form submissions</p>
       </div>
 
-      <Card>
+      <Card
+        title="Submission Inbox"
+        subtitle="Review all responses collected from your active forms."
+        bodyNoPadding
+      >
         <Table
           columns={columns}
           data={submissions}
           loading={loading}
           onRowClick={(r) => navigate(`/submissions/${r.uuid}`)}
+          emptyTitle="No submissions yet"
+          emptyDescription="Once users start responding to your forms, each submission will appear here with status, submitter, and time details."
+          keyField="uuid"
         />
       </Card>
     </div>

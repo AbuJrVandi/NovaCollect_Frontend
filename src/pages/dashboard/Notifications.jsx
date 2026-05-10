@@ -42,9 +42,10 @@ export default function Notifications() {
   const unreadCount = notifications.filter((n) => !n.read_at).length;
 
   return (
-    <div className="space-y-6">
+    <div className="page-shell">
       <div className="page-header-row">
         <div>
+          <div className="page-kicker">Workspace Updates</div>
           <h1 className="page-title">Notifications</h1>
           <p className="page-subtitle">Stay updated with your workspace activity</p>
         </div>
@@ -55,7 +56,7 @@ export default function Notifications() {
         )}
       </div>
 
-      <Card>
+      <Card title="Activity Feed" subtitle="Unread alerts, workflow updates, and system messages appear here.">
         {loading ? (
           <div className="space-y-4">
             {[1, 2, 3, 4, 5].map((i) => (

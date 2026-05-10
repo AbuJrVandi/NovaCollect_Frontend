@@ -1,4 +1,13 @@
-export default function Card({ children, className = '', title, subtitle, action, hover }) {
+export default function Card({
+  children,
+  className = '',
+  title,
+  subtitle,
+  action,
+  hover,
+  bodyClassName = '',
+  bodyNoPadding = false,
+}) {
   return (
     <div
       className={`card ${hover ? 'card-hover' : ''} ${className}`}
@@ -12,7 +21,7 @@ export default function Card({ children, className = '', title, subtitle, action
           {action && <div className="flex items-center gap-2">{action}</div>}
         </div>
       )}
-      <div className="card-body">{children}</div>
+      <div className={`${bodyNoPadding ? '' : 'card-body'} ${bodyClassName}`}>{children}</div>
     </div>
   );
 }

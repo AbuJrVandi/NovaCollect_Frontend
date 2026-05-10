@@ -31,7 +31,7 @@ export default function SubmissionView() {
 
   if (loading) {
     return (
-      <div className="space-y-6 animate-fade-in">
+      <div className="page-shell animate-fade-in">
         <div className="flex items-center justify-between">
           <div className="space-y-2">
             <div className="skel skel-h2" />
@@ -61,9 +61,10 @@ export default function SubmissionView() {
   const files = submission.files || [];
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="page-shell animate-fade-in">
       <div className="page-header-row">
         <div>
+          <div className="page-kicker">Submission Review</div>
           <h1 className="page-title">
             Submission #{submission.uuid?.slice(0, 8)}
           </h1>
@@ -73,7 +74,7 @@ export default function SubmissionView() {
             Submitted: {new Date(submission.created_at).toLocaleString()}
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="page-actions">
           <span className={`badge ${
             submission.status === 'submitted' ? 'badge-green' :
             submission.status === 'draft' ? 'badge-amber' :
@@ -90,7 +91,7 @@ export default function SubmissionView() {
         </div>
       </div>
 
-      <Card title="Submission Data">
+      <Card title="Submission Data" subtitle="Field values exactly as they were captured at collection time.">
         {Object.keys(payload).length > 0 ? (
           <div>
             {Object.entries(payload).map(([key, value]) => (
@@ -118,7 +119,7 @@ export default function SubmissionView() {
       </Card>
 
       {files.length > 0 && (
-        <Card title="Files">
+        <Card title="Files" subtitle="Attachments uploaded with this submission.">
           <div className="file-list">
             {files.map((file, i) => (
               <div key={i} className="file-item">
@@ -141,7 +142,7 @@ export default function SubmissionView() {
       )}
 
       {(submission.device_metadata || submission.latitude || submission.longitude) && (
-        <Card title="Metadata">
+        <Card title="Metadata" subtitle="Device, location, and external tracking information.">
           <div className="metadata-grid">
             {submission.latitude && submission.longitude && (
               <div className="metadata-group">

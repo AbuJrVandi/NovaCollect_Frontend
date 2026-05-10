@@ -61,10 +61,13 @@ export default function Dashboard() {
 
   const submissionTrend = analytics?.submission_trend ?? stats?.submission_trend ?? [];
   const topForms = analytics?.top_forms ?? stats?.top_forms ?? [];
+  const trendTotal = submissionTrend.reduce((sum, entry) => sum + (entry.count || 0), 0);
+  const recentTopForms = topForms.slice(0, 3);
 
   return (
-    <div className="space-y-8">
+    <div className="page-shell">
       <div className="page-header">
+        <div className="page-kicker">Operations Console</div>
         <h1 className="page-title">Dashboard</h1>
         <p className="page-subtitle">Overview of your NovaCollect workspace</p>
       </div>
@@ -92,29 +95,49 @@ export default function Dashboard() {
       </div>
 
       <div className="dashboard-grid">
-        <Card title="Recent Activity" subtitle="Latest actions in your workspace">
+        <Card title="Workspace Pulse" subtitle="Signals from your active data collection flow">
           {loading ? (
-            <div className="space-y-3">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="flex items-center gap-3">
-                  <div className="w-2 h-2 rounded-full bg-[#e2e8f0] animate-pulse" />
-                  <div className="flex-1 h-4 skeleton skeleton-line" />
+            <div className="grid gap-4 sm:grid-cols-2">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="rounded-[20px] border border-[rgba(176,191,225,0.18)] bg-[rgba(248,250,255,0.82)] p-4">
+                  <div className="skeleton skeleton-line mb-4 w-1/2" />
+                  <div className="skeleton h-8 w-16 rounded-[12px]" />
                 </div>
               ))}
             </div>
           ) : (
-            <div className="empty-state" style={{ padding: '2.5rem 1rem' }}>
-              <div className="empty-state-icon">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="rounded-[22px] border border-[rgba(176,191,225,0.18)] bg-[rgba(248,250,255,0.86)] p-5">
+                <p className="text-[0.78rem] font-extrabold uppercase tracking-[0.14em] text-[#8a98b6]">Submission velocity</p>
+                <p className="font-display mt-3 text-4xl text-[#10203f]">{trendTotal}</p>
+                <p className="mt-2 text-sm leading-6 text-[#5d6d8f]">Recorded across the latest trend window. This becomes a live health signal as your forms go active.</p>
               </div>
-              <p className="empty-state-desc">Activity data will appear here</p>
+              <div className="rounded-[22px] border border-[rgba(176,191,225,0.18)] bg-[rgba(248,250,255,0.86)] p-5">
+                <p className="text-[0.78rem] font-extrabold uppercase tracking-[0.14em] text-[#8a98b6]">Top performing forms</p>
+                {recentTopForms.length > 0 ? (
+                  <div className="mt-3 space-y-3">
+                    {recentTopForms.map((form, index) => (
+                      <div key={`${form.name || form.form_name}-${index}`} className="flex items-center justify-between gap-3 rounded-[16px] bg-white/80 px-3 py-3">
+                        <div>
+                          <p className="font-medium text-[#10203f]">{form.name || form.form_name || `Form ${index + 1}`}</p>
+                          <p className="text-xs text-[#8a98b6]">Submission volume leader</p>
+                        </div>
+                        <span className="badge badge-blue">
+                          <span className="badge-dot" />
+                          {form.count || form.total || 0}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="mt-3 text-sm leading-6 text-[#5d6d8f]">Top forms will appear here once submissions start arriving.</p>
+                )}
+              </div>
             </div>
           )}
         </Card>
 
-        <Card title="Quick Actions" subtitle="Common tasks">
+        <Card title="Quick Actions" subtitle="Jump straight into the most common workflows">
           <div className="quick-grid">
             {[
               { to: '/forms/new', label: 'New Form', icon: 'M12 4v16m8-8H4', desc: 'Create a new form' },

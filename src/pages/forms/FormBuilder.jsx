@@ -154,9 +154,10 @@ export default function FormBuilder() {
 
   if (preview) {
     return (
-      <div className="space-y-6">
+      <div className="page-shell">
         <div className="page-header-row">
           <div>
+            <div className="page-kicker">Preview Mode</div>
             <h1 className="page-title">Preview: {formData.name || 'Untitled Form'}</h1>
             <p className="page-subtitle">This is how your form will appear to users</p>
           </div>
@@ -179,7 +180,7 @@ export default function FormBuilder() {
                     <div className="space-y-2">
                       {(field.options || []).map((opt, j) => (
                         <label key={j} className="flex items-center gap-2.5 text-sm text-[#475569] cursor-pointer">
-                          <div className={`w-4 h-4 border-2 border-[#cbd5e1] rounded-${field.type === 'radio' ? 'full' : 'md'}`} />
+                          <div className={`w-4 h-4 border-2 border-[#cbd5e1] ${field.type === 'radio' ? 'rounded-full' : 'rounded-md'}`} />
                           {typeof opt === 'object' ? opt.label : opt}
                         </label>
                       ))}
@@ -204,13 +205,14 @@ export default function FormBuilder() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="page-shell">
       <div className="page-header-row">
         <div>
+          <div className="page-kicker">Form Builder</div>
           <h1 className="page-title">{isEditing ? 'Edit Form' : 'Create Form'}</h1>
           <p className="page-subtitle">Design your data collection form with sections and fields</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="page-actions">
           <Button variant="secondary" onClick={() => setPreview(true)}>
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -227,7 +229,7 @@ export default function FormBuilder() {
 
       <div className="builder-grid">
         <div className="space-y-6 lg:col-span-2">
-          <Card>
+          <Card title="Form Details" subtitle="Define the name, purpose, and publishing state for this form.">
             <div className="space-y-5">
               <Input
                 label="Form Name"
@@ -249,7 +251,7 @@ export default function FormBuilder() {
           </Card>
 
           {sections.map((section, si) => (
-            <Card key={section._clientId} title={`Section ${si + 1}`}>
+            <Card key={section._clientId} title={`Section ${si + 1}`} subtitle="Group related fields together for a cleaner collection flow.">
               <div className="space-y-4 mb-4">
                 <input
                   type="text"

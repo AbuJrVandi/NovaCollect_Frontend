@@ -31,7 +31,7 @@ export default function Modal({ isOpen, onClose, title, children, size = 'md' })
       <div className={`modal-content ${sizes[size]}`}>
         <div className="modal-header">
           <h3 className="modal-title">{title}</h3>
-          <button onClick={onClose} className="modal-close">
+          <button type="button" onClick={onClose} className="modal-close">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
             </svg>

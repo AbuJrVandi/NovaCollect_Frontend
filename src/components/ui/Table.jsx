@@ -1,4 +1,12 @@
-export default function Table({ columns = [], data = [], loading, onRowClick }) {
+export default function Table({
+  columns = [],
+  data = [],
+  loading,
+  onRowClick,
+  emptyTitle = 'No data available',
+  emptyDescription = 'Content will appear here when records become available.',
+  keyField = 'id',
+}) {
   if (loading) {
     return (
       <div className="table-wrap">
@@ -15,7 +23,7 @@ export default function Table({ columns = [], data = [], loading, onRowClick }) 
               <tr key={row}>
                 {columns.map((col, i) => (
                   <td key={i}>
-                    <div className="skeleton skeleton-line" style={{ width: `${60 + Math.random() * 30}%` }} />
+                    <div className="skeleton skeleton-line" style={{ width: `${58 + ((row + i) % 4) * 10}%` }} />
                   </td>
                 ))}
               </tr>
@@ -34,7 +42,8 @@ export default function Table({ columns = [], data = [], loading, onRowClick }) 
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
           </svg>
         </div>
-        <p className="table-empty-text">No data found</p>
+        <p className="table-empty-text">{emptyTitle}</p>
+        <p className="empty-state-desc">{emptyDescription}</p>
       </div>
     );
   }
@@ -52,7 +61,7 @@ export default function Table({ columns = [], data = [], loading, onRowClick }) 
         <tbody>
           {data.map((row, rowIndex) => (
             <tr
-              key={row.id || rowIndex}
+              key={row[keyField] || row.uuid || rowIndex}
               onClick={() => onRowClick?.(row)}
               className={onRowClick ? 'row-clickable' : ''}
             >

@@ -15,26 +15,26 @@ export default function FieldEditor({ field, onChange, onDelete }) {
   };
 
   return (
-    <div className="bg-white border border-[#e2e8f0] rounded-xl p-4 space-y-4 transition-all duration-150 hover:border-[#cbd5e1] hover:shadow-sm">
+    <div className="rounded-[22px] border border-[rgba(166,183,219,0.2)] bg-[rgba(248,250,255,0.9)] p-5 space-y-4 transition-all duration-150 hover:border-[rgba(121,147,203,0.28)] hover:shadow-[0_12px_30px_rgba(36,63,118,0.08)]">
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1 space-y-4">
-          <div className="grid grid-cols-3 gap-3">
-            <div className="col-span-2">
-              <label className="block text-xs font-medium text-[#64748b] mb-1.5">Field Label</label>
+          <div className="grid gap-3 md:grid-cols-3">
+            <div className="md:col-span-2">
+              <label className="input-label">Field Label</label>
               <input
                 type="text"
                 value={field.label}
                 onChange={(e) => handleChange('label', e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-[#e2e8f0] rounded-lg text-[#0f172a] placeholder:text-[#94a3b8] bg-white transition-all focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 hover:border-[#cbd5e1]"
+                className="input-field"
                 placeholder="Field label"
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-[#64748b] mb-1.5">Field Type</label>
+              <label className="input-label">Field Type</label>
               <select
                 value={field.type}
                 onChange={(e) => handleChange('type', e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-[#e2e8f0] rounded-lg text-[#0f172a] bg-white transition-all focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 hover:border-[#cbd5e1]"
+                className="input-field"
               >
                 {fieldTypes.map((ft) => (
                   <option key={ft.value} value={ft.value}>{ft.label}</option>
@@ -43,24 +43,24 @@ export default function FieldEditor({ field, onChange, onDelete }) {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_8rem]">
             <div className="flex-1">
-              <label className="block text-xs font-medium text-[#64748b] mb-1.5">Help text</label>
+              <label className="input-label">Help text</label>
               <input
                 type="text"
                 value={field.help_text || ''}
                 onChange={(e) => handleChange('help_text', e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-[#e2e8f0] rounded-lg text-[#0f172a] placeholder:text-[#94a3b8] bg-white transition-all focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"
+                className="input-field"
                 placeholder="Optional help text"
               />
             </div>
-            <div className="w-32">
-              <label className="block text-xs font-medium text-[#64748b] mb-1.5">Default value</label>
+            <div>
+              <label className="input-label">Default value</label>
               <input
                 type="text"
                 value={field.default_value || ''}
                 onChange={(e) => handleChange('default_value', e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-[#e2e8f0] rounded-lg text-[#0f172a] placeholder:text-[#94a3b8] bg-white transition-all focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"
+                className="input-field"
                 placeholder="Default"
               />
             </div>
@@ -68,11 +68,11 @@ export default function FieldEditor({ field, onChange, onDelete }) {
 
           {(field.type === 'dropdown' || field.type === 'radio' || field.type === 'checkbox') && (
             <div>
-              <label className="block text-xs font-medium text-[#64748b] mb-1.5">Options (one per line)</label>
+              <label className="input-label">Options (one per line)</label>
               <textarea
                 value={optionsToStrings(field.options || []).join('\n')}
                 onChange={(e) => handleChange('options', stringsToOptions(e.target.value.split('\n').filter(Boolean)))}
-                className="w-full px-3 py-2 text-sm border border-[#e2e8f0] rounded-lg text-[#0f172a] placeholder:text-[#94a3b8] bg-white transition-all focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"
+                className="input-field"
                 rows={3}
                 placeholder="Option 1&#10;Option 2&#10;Option 3"
               />
@@ -81,20 +81,20 @@ export default function FieldEditor({ field, onChange, onDelete }) {
 
           {field.type === 'file' && (
             <div>
-              <label className="block text-xs font-medium text-[#64748b] mb-1.5">Accepted file types</label>
+              <label className="input-label">Accepted file types</label>
               <input
                 type="text"
                 value={field.meta?.accept || ''}
                 onChange={(e) => handleChange('meta', { ...(field.meta || {}), accept: e.target.value })}
-                className="w-full px-3 py-2 text-sm border border-[#e2e8f0] rounded-lg text-[#0f172a] placeholder:text-[#94a3b8] bg-white transition-all focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"
+                className="input-field"
                 placeholder=".pdf,.jpg,.png"
               />
             </div>
           )}
         </div>
 
-        <div className="flex items-start gap-2 flex-shrink-0 pt-6">
-          <label className="relative flex items-center gap-2 text-xs text-[#64748b] cursor-pointer group whitespace-nowrap">
+        <div className="flex items-start gap-2 flex-shrink-0 pt-7">
+          <label className="relative flex items-center gap-2 text-xs text-[#5d6d8f] cursor-pointer group whitespace-nowrap">
             <input
               type="checkbox"
               checked={field.is_required || false}

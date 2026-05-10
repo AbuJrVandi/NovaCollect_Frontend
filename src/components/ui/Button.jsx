@@ -1,14 +1,14 @@
 const variants = {
-  primary: 'bg-gradient-to-br from-primary-500 to-primary-600 text-white hover:from-primary-600 hover:to-primary-700 shadow-sm hover:shadow-md active:shadow-sm',
-  secondary: 'bg-white text-[#475569] hover:bg-[#f1f5f9] border border-[#e2e8f0] hover:border-[#cbd5e1] active:bg-[#e2e8f0]',
-  danger: 'bg-gradient-to-br from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 shadow-sm hover:shadow-md active:shadow-sm',
-  ghost: 'bg-transparent text-[#475569] hover:bg-[#f1f5f9] active:bg-[#e2e8f0]',
+  primary: 'border border-transparent bg-gradient-to-r from-primary-500 via-primary-500 to-[#6f5dff] text-white shadow-[0_16px_30px_rgba(43,99,246,0.22)] hover:-translate-y-0.5 hover:shadow-[0_20px_36px_rgba(43,99,246,0.28)]',
+  secondary: 'border border-[rgba(165,181,218,0.24)] bg-white/90 text-[#445579] shadow-[0_10px_24px_rgba(36,63,118,0.06)] hover:-translate-y-0.5 hover:bg-white hover:text-[#10203f]',
+  danger: 'border border-transparent bg-gradient-to-r from-[#ef4444] to-[#dc2626] text-white shadow-[0_16px_30px_rgba(220,38,38,0.2)] hover:-translate-y-0.5 hover:shadow-[0_20px_36px_rgba(220,38,38,0.28)]',
+  ghost: 'border border-transparent bg-transparent text-[#5d6d8f] hover:bg-white/70 hover:text-[#10203f]',
 };
 
 const sizes = {
-  sm: 'px-3 py-1.5 text-xs gap-1.5',
-  md: 'px-4 py-2 text-sm gap-2',
-  lg: 'px-5 py-2.5 text-sm gap-2',
+  sm: 'px-3.5 py-2 text-xs gap-1.5 rounded-[14px]',
+  md: 'px-4.5 py-2.5 text-sm gap-2 rounded-[16px]',
+  lg: 'px-5.5 py-3 text-sm gap-2 rounded-[18px]',
 };
 
 export default function Button({ children, variant = 'primary', size = 'md', className = '', disabled, loading, type = 'button', ...props }) {
@@ -16,7 +16,7 @@ export default function Button({ children, variant = 'primary', size = 'md', cla
     <button
       type={type}
       disabled={disabled || loading}
-      className={`inline-flex items-center justify-center font-medium rounded-lg transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.97] ${variants[variant]} ${sizes[size]} ${className}`}
+      className={`inline-flex items-center justify-center font-semibold transition-all duration-150 focus:outline-none focus:ring-4 focus:ring-primary-500/15 disabled:opacity-50 disabled:cursor-not-allowed active:translate-y-px ${variants[variant]} ${sizes[size]} ${className}`}
       {...props}
     >
       {loading && (

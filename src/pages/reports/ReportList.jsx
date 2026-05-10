@@ -89,22 +89,31 @@ export default function ReportList() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="page-shell">
       <div className="page-header-row">
         <div>
+          <div className="page-kicker">Exports and Delivery</div>
           <h1 className="page-title">Reports & Exports</h1>
           <p className="page-subtitle">Generate and download data exports</p>
         </div>
-        <Button onClick={() => setExportModal(true)}>
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
-          New Export
-        </Button>
+        <div className="page-actions">
+          <Button onClick={() => setExportModal(true)}>
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            New Export
+          </Button>
+        </div>
       </div>
 
-      <Card title="Export History" subtitle="Previously requested exports">
-        <Table columns={columns} data={exports} loading={loading} />
+      <Card title="Export History" subtitle="Monitor pending, processing, completed, and failed export jobs." bodyNoPadding>
+        <Table
+          columns={columns}
+          data={exports}
+          loading={loading}
+          emptyTitle="No export requests yet"
+          emptyDescription="Queue an export to generate downloadable datasets for submissions, audits, or stakeholder reporting."
+        />
       </Card>
 
       <Modal isOpen={exportModal} onClose={() => setExportModal(false)} title="New Export">

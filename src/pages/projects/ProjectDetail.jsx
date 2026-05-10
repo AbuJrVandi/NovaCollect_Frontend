@@ -64,7 +64,7 @@ export default function ProjectDetail() {
 
   if (loading) {
     return (
-      <div className="space-y-6 animate-fade-in">
+      <div className="page-shell animate-fade-in">
         <div className="space-y-2">
           <div className="skel skel-h2" />
           <div className="skel skel-text w-64" />
@@ -99,13 +99,14 @@ export default function ProjectDetail() {
   };
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="page-shell animate-fade-in">
       <div className="page-header-row">
         <div>
+          <div className="page-kicker">Project Board</div>
           <h1 className="page-title">{project.name}</h1>
           <p className="page-subtitle">{project.description || 'No description'}</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="page-actions">
           <Button onClick={() => setTaskModal(true)}>
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
