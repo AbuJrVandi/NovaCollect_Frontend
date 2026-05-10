@@ -1,12 +1,13 @@
 export const fieldTypes = [
-  { value: 'text', label: 'Text Input' },
+  { value: 'text', label: 'Short Text' },
+  { value: 'textarea', label: 'Long Text' },
   { value: 'number', label: 'Number' },
   { value: 'email', label: 'Email' },
   { value: 'date', label: 'Date' },
-  { value: 'dropdown', label: 'Dropdown' },
-  { value: 'checkbox', label: 'Checkbox' },
-  { value: 'radio', label: 'Radio' },
-  { value: 'file', label: 'File Upload' },
+  { value: 'radio', label: 'Select One' },
+  { value: 'checkbox', label: 'Select Many' },
+  { value: 'dropdown', label: 'Dropdown Select' },
+  { value: 'file', label: 'File / Image' },
   { value: 'gps', label: 'GPS Location' },
   { value: 'signature', label: 'Signature' },
 ];
