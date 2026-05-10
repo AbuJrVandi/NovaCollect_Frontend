@@ -272,9 +272,6 @@ export default function FormBuilder() {
                 {(section.fields || []).map((field, fi) => (
                   <div key={field._clientId} className="animate-fade-in" style={{ animationDelay: `${fi * 30}ms` }}>
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="field-chip">
-                        {field.key || `field_${si}_${fi}`}
-                      </span>
                       <div className="flex items-center gap-0.5 ml-auto">
                         <button
                           onClick={() => moveField(section._clientId, field._clientId, -1)}
@@ -352,7 +349,7 @@ export default function FormBuilder() {
                 <ul className="tips-card-list">
                   <li>Use sections to group related fields together</li>
                   <li>Each section can have its own description</li>
-                  <li>Fields use unique <code>key</code> identifiers</li>
+                  <li>Technical field IDs are generated automatically</li>
                   <li>Use preview mode to see the final form</li>
                 </ul>
               </div>

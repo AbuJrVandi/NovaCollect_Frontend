@@ -5,6 +5,14 @@ import Table from '../../components/ui/Table';
 import { submissionService } from '../../services/submissionService';
 import useAppStore from '../../store/useAppStore';
 
+function formatSubmissionLabel(submission) {
+  if (submission.external_id) return submission.external_id;
+  if (submission.created_at) {
+    return `Submitted ${new Date(submission.created_at).toLocaleDateString()}`;
+  }
+  return 'Submission record';
+}
+
 export default function SubmissionList() {
   const navigate = useNavigate();
   const addToast = useAppStore((s) => s.addToast);
@@ -29,11 +37,11 @@ export default function SubmissionList() {
   };
 
   const columns = [
-    { header: 'UUID', render: (r) => (
-      <span className="font-mono text-xs font-medium text-[#64748b]">{r.uuid?.slice(0, 8)}...</span>
-    )},
-    { header: 'Form', render: (r) => (
-      <span className="font-medium text-[#0f172a]">{r.form?.name || '—'}</span>
+    { header: 'Submission', render: (r) => (
+      <div className="space-y-1">
+        <span className="block font-semibold text-[#0f172a]">{formatSubmissionLabel(r)}</span>
+        <span className="block text-xs text-[#64748b]">{r.form?.name || 'Unassigned form'}</span>
+      </div>
     )},
     { header: 'Submitted By', render: (r) => (
       <span className="text-[#475569]">{r.user?.name || '—'}</span>

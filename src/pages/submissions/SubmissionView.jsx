@@ -5,14 +5,29 @@ import Button from '../../components/ui/Button';
 import { submissionService } from '../../services/submissionService';
 import useAppStore from '../../store/useAppStore';
 
-function getOptionLabel(options, value) {
-  if (!options || !value) return value;
-  for (const opt of options) {
-    if ((typeof opt === 'object' ? opt.value : opt) === value) {
-      return typeof opt === 'object' ? opt.label : opt;
+function buildFieldLabelMap(form) {
+  const labels = new Map();
+
+  for (const section of form?.sections || []) {
+    for (const field of section.fields || []) {
+      if (field?.key) {
+        labels.set(field.key, field.label || formatFieldLabel(field.key));
+      }
     }
   }
-  return value;
+
+  return labels;
+}
+
+function formatFieldLabel(value) {
+  if (!value) return 'Field';
+
+  return value
+    .replace(/[_-.]+/g, ' ')
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
 export default function SubmissionView() {
@@ -59,19 +74,29 @@ export default function SubmissionView() {
 
   const payload = submission.payload || {};
   const files = submission.files || [];
+  const fieldLabels = buildFieldLabelMap(submission.form);
+  const submissionTitle = submission.external_id || submission.form?.name || 'Submission details';
 
   return (
     <div className="page-shell animate-fade-in">
       <div className="page-header-row">
         <div>
           <div className="page-kicker">Submission Review</div>
-          <h1 className="page-title">
-            Submission #{submission.uuid?.slice(0, 8)}
-          </h1>
+          <h1 className="page-title">{submissionTitle}</h1>
           <p className="page-subtitle">
-            Form: <span className="font-medium text-[#0f172a]">{submission.form?.name || 'Unknown'}</span>
-            <span className="mx-2">·</span>
+            {submission.form?.name && (
+              <>
+                Form: <span className="font-medium text-[#0f172a]">{submission.form.name}</span>
+                <span className="mx-2">·</span>
+              </>
+            )}
             Submitted: {new Date(submission.created_at).toLocaleString()}
+            {submission.user?.name && (
+              <>
+                <span className="mx-2">·</span>
+                By {submission.user.name}
+              </>
+            )}
           </p>
         </div>
         <div className="page-actions">
@@ -96,7 +121,7 @@ export default function SubmissionView() {
           <div>
             {Object.entries(payload).map(([key, value]) => (
               <div key={key} className="submission-field">
-                <dt className="submission-field-key">{key}</dt>
+                <dt className="submission-field-key">{fieldLabels.get(key) || formatFieldLabel(key)}</dt>
                 <dd className="submission-field-value">
                   {Array.isArray(value) ? (
                     <div className="flex flex-wrap gap-1.5">

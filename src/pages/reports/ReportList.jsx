@@ -5,14 +5,16 @@ import Table from '../../components/ui/Table';
 import Modal from '../../components/ui/Modal';
 import Select from '../../components/ui/Select';
 import { exportService } from '../../services/exportService';
+import { formService } from '../../services/formService';
 import useAppStore from '../../store/useAppStore';
 
 export default function ReportList() {
   const addToast = useAppStore((s) => s.addToast);
   const [exports, setExports] = useState([]);
+  const [forms, setForms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [exportModal, setExportModal] = useState(false);
-  const [exportConfig, setExportConfig] = useState({ type: 'submissions', format: 'csv', filters: { form_uuid: '', status: '' } });
+  const [exportConfig, setExportConfig] = useState({ type: 'submissions', format: 'csv', filters: { formId: '', status: '' } });
   const [exporting, setExporting] = useState(false);
 
   const fetchExports = () => {
@@ -23,13 +25,18 @@ export default function ReportList() {
       .finally(() => setLoading(false));
   };
 
-  useEffect(() => { fetchExports(); }, []);
+  useEffect(() => {
+    fetchExports();
+    formService.list({ per_page: 100 })
+      .then(({ data }) => setForms(data))
+      .catch(() => addToast({ type: 'error', message: 'Failed to load forms for export filters' }));
+  }, []);
 
   const handleExport = async () => {
     setExporting(true);
     try {
       const filters = {};
-      if (exportConfig.filters.form_uuid) filters.form_uuid = exportConfig.filters.form_uuid;
+      if (exportConfig.filters.formId) filters.formId = exportConfig.filters.formId;
       if (exportConfig.filters.status) filters.status = exportConfig.filters.status;
       await exportService.create({
         type: exportConfig.type,
@@ -128,26 +135,28 @@ export default function ReportList() {
               { value: 'pdf', label: 'PDF (.pdf)' },
             ]}
           />
-          <div className="input-group">
-            <label className="input-label">Form UUID (optional)</label>
-            <input
-              type="text"
-              value={exportConfig.filters.form_uuid}
-              onChange={(e) => setExportConfig({ ...exportConfig, filters: { ...exportConfig.filters, form_uuid: e.target.value } })}
-              className="input-field"
-              placeholder="Filter by form UUID"
-            />
-          </div>
-          <div className="input-group">
-            <label className="input-label">Status filter (optional)</label>
-            <input
-              type="text"
-              value={exportConfig.filters.status}
-              onChange={(e) => setExportConfig({ ...exportConfig, filters: { ...exportConfig.filters, status: e.target.value } })}
-              className="input-field"
-              placeholder="e.g. submitted"
-            />
-          </div>
+          <Select
+            label="Form (optional)"
+            value={exportConfig.filters.formId}
+            onChange={(e) => setExportConfig({ ...exportConfig, filters: { ...exportConfig.filters, formId: e.target.value } })}
+            placeholder="All forms"
+            options={forms.map((form) => ({
+              value: form.uuid,
+              label: form.name || 'Untitled form',
+            }))}
+          />
+          <Select
+            label="Status filter (optional)"
+            value={exportConfig.filters.status}
+            onChange={(e) => setExportConfig({ ...exportConfig, filters: { ...exportConfig.filters, status: e.target.value } })}
+            placeholder="All statuses"
+            options={[
+              { value: 'submitted', label: 'Submitted' },
+              { value: 'draft', label: 'Draft' },
+              { value: 'pending', label: 'Pending' },
+              { value: 'rejected', label: 'Rejected' },
+            ]}
+          />
           <div className="modal-footer" style={{ padding: 0 }}>
             <Button variant="secondary" onClick={() => setExportModal(false)}>Cancel</Button>
             <Button onClick={handleExport} loading={exporting}>Queue Export</Button>
